@@ -31,7 +31,7 @@ pred contained_element(as_entry, as_entry_list).
 clauses
   forall l:as_entry_list, e:as_entry; contained_element(e, enlarge_as_list(l, e));
   forall l:as_entry_list, e:as_entry, e1:as_entry; contained_element(e, l) -> contained_element(e, enlarge_as_list(l, e1));
-  forall l:as_entry_list, e:as_entry, l1:as_entry_list; pop(enlarge_as_list(l, e)) = (l1, e) -> !contained_element(e, l1).
+  forall l:as_entry_list, e:as_entry, l1:as_entry_list; pop(enlarge_as_list(l, e)) = (l1, e) -> contained_element(e, l1) = false.
 
 type segment_list. (* List of segments*)
 const empty_seg_list: segment_list.
