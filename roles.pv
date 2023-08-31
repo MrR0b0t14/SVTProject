@@ -40,10 +40,6 @@ fun pop_segment(segment_list): segment_list.
 fun get_head_segment(segment_list): as_entry_list.
 reduc forall l:segment_list, e:as_entry_list, e1:as_entry_list; pop_segment(enlarge_seg_list(e1,enlarge_seg_list(l, e))) = enlarge_seg_list(l, e).
 reduc forall l:segment_list, e:as_entry_list; get_head_segment(enlarge_seg_list(l, e)) = e.
-pred is_empty_segment(segment_list): bool.
-clauses
-  is_empty_segment(0) = true; (*I do not know if these 2 are correct but I do not know how to model it otherwise*)
-  is_empty_segment(!0) = false.
 
 pred contained_segment(as_entry_list, segment_list).
 clauses
