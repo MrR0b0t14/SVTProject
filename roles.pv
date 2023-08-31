@@ -89,7 +89,7 @@ event signature_verification_failed(int).
 event send_segments(channel, segment_list).
 
 (*Query definition*)
-query ch:channel; isd_as:ISD_AS; event(send_request(ch:channel, isd_as:ISD_AS)).
+query ch:channel; isd_as:ISD_AS; event(send_request(ch, isd_as)).
 
 (* Process Definitions *)
 let AS_signature_finishing(number_of_ASes:int, as_list:as_entry_list, seg_list: segment_list) =
