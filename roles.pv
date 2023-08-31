@@ -1,5 +1,5 @@
 (* Types *)
-type ISD_AS: (int, int). (* ISD_AS identifier *)
+type ISD_AS = (int, int); (* ISD_AS identifier *)
 type symmetric_key. (* Symmetric key *)
 type keymat. (* Key material *)
 type public_key. (* Public key *)
