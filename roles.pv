@@ -80,13 +80,13 @@ fun sign(bitstring, skey): bitstring.
 reduc forall m:bitstring, y:keymat; getmess(sign(m,gen_private_key(y))) = m.
 reduc forall m:bitstring, y:keymat; checksign(sign(m,gen_private_key(y)), gen_public_key(y)) = ok().
 
-event send_request(ch:channel, isd_as:ISD_AS).
-event end_host_received_paths(seg_list: segment_list).
-event local_server_receive_path(seg_list: segment_list).
-event core_server_receive_path(seg_list: segment_list).
-event verify_trust_root_configuration(trc: trust_root_configuration).
-event signature_verification_failed(as_identifier: as_id).
-event send_segments(ch: channel, seg_list: segment_list).
+event send_request(channel, ISD_AS).
+event end_host_received_paths(segment_list).
+event local_server_receive_path(segment_list).
+event core_server_receive_path(segment_list).
+event verify_trust_root_configuration(trust_root_configuration).
+event signature_verification_failed(int).
+event send_segments(channel, segment_list).
 
 (*Query definition*)
 query ch:channel; isd_as:ISD_AS; event(send_request(ch:channel, isd_as:ISD_AS)).
