@@ -21,8 +21,10 @@ reduc forall as:int, signature:bitstring, key:public_key; get_key(make_as_entry(
 type as_entry_list. (* List of AS entries*)
 
 fun enlarge_as_list(as_entry_list, as_entry): as_entry_list.
-fun pop(as_entry_list): (as_entry_list, as_entry).
-reduc forall l:as_entry_list, e:as_entry, e1:as_entry; pop(enlarge_as_list(e1,enlarge_as_list(l, e))) = (enlarge_as_list(l, e), e1).
+fun pop(as_entry_list): as_entry_list.
+fun get_head(as_entry_list): as_entry.
+reduc forall l:as_entry_list, e:as_entry, e1:as_entry; pop(enlarge_as_list(e1,enlarge_as_list(l, e))) = enlarge_as_list(l, e).
+reduc forall l:as_entry_list, e:as_entry; get_head(enlarge_as_list(l, e)) = e.
 pred is_empty(as_entry_list): bool.
 clauses
   is_empty([]) = true; (*I do not know if these 2 are correct but I do not know how to model it otherwise*)
@@ -136,7 +138,8 @@ let AS_entry_list_signature_verification(as_list: as_entry_list) =
     (*Inner Base case, no more AS to verify*)
     0
   else
-    let (as_entry_list1, as_entry) = pop(as_list) in
+    let as_entry = get_head(as_list) in
+    let as_entry_list1 = pop(as_list) in
     let as_identifier = get_as_identifier(as_entry) in
     let signature = get_signature(as_entry) in
     let pkey = get_public_key(as_entry) in
