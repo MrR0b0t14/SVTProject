@@ -96,7 +96,7 @@ let AS_signature_finishing(number_of_ASes:int, as_list:as_entry_list, seg_list: 
   new k:keymat; new isd_as_id:ISD_AS;
   if number_of_ASes = 0 then
     (*Base case: no more ASes to sign*)
-    let new_seg_list = enlarge_seg_list(seg_list, as_list) (*It adds the AS list to the segment list*)
+    let new_seg_list = enlarge_seg_list(seg_list, as_list) in (*It adds the AS list to the segment list*)
     out(ch_AS_core_server, new_seg_list) (*It sends to the Remote Core AS the segment signed by all the ASes*)
   else
     AS_signature(k, isd_as_id, as_list) (*It signs the segment and sends it to the next AS*)
