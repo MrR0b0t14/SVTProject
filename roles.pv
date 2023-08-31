@@ -20,15 +20,12 @@ reduc forall as:int, signature:bitstring, key:public_key; get_key(make_as_entry(
 
 type as_entry_list. (* List of AS entries*)
 
-fun enlarge_as_list(as_entry_list, as_entry, int): as_entry_list.
+const empty_as_list: as_entry_list.
+fun enlarge_as_list(as_entry_list, as_entry): as_entry_list.
 fun pop(as_entry_list): as_entry_list.
 fun get_head(as_entry_list): as_entry.
 reduc forall l:as_entry_list, e:as_entry, e1:as_entry; pop(enlarge_as_list(e1,enlarge_as_list(l, e))) = enlarge_as_list(l, e).
 reduc forall l:as_entry_list, e:as_entry; get_head(enlarge_as_list(l, e)) = e.
-pred is_empty(as_entry_list).
-clauses
-  is_empty([]) = true;
-  is_empty(_::_) = false.
 
 pred contained_element(as_entry, as_entry_list).
 clauses
@@ -37,7 +34,7 @@ clauses
   forall l:as_entry_list, e:as_entry, l1:as_entry_list; pop(enlarge_as_list(l, e)) = (l1, e) -> !contained_element(e, l1).
 
 type segment_list. (* List of segments*)
-
+const empty_seg_list: segment_list.
 fun enlarge_seg_list(segment_list, as_entry_list): segment_list.
 fun pop_segment(segment_list): segment_list.
 fun get_head_segment(segment_list): as_entry_list.
@@ -61,7 +58,7 @@ free ch_local_server_core_server: channel. (* Public channel between the Local P
 free ch_core_server_core_remote_server: channel. (* Public channel between the Core Server and Core Remote Server, in the destination ISD*)
 free ch_ASes: channel. (* Public channel between ASes*)
 free ch_AS_core_server: channel. (* Public channel between AS and Remote Core Server*)
-
+free ch_inner: channel. (* Private channel between ASes*)
 
 (* Cryptographic Primitives *)
 (* Key Generation from Key Material *)
@@ -103,21 +100,22 @@ let AS_signature_finishing(number_of_ASes:int, as_list:as_entry_list, seg_list: 
   new k:keymat; new isd_as_id:ISD_AS;
   if number_of_ASes = 0 then
     (*Base case: no more ASes to sign*)
-    enlarge_seg_list(seg_list, as_list) (*It adds the AS list to the segment list*)
-    out(ch_AS_core_server, seg_list) (*It sends to the Remote Core AS the segment signed by all the ASes*)
+    let new_seg_list = enlarge_seg_list(seg_list, as_list) (*It adds the AS list to the segment list*)
+    out(ch_AS_core_server, new_seg_list) (*It sends to the Remote Core AS the segment signed by all the ASes*)
   else
     AS_signature(k, isd_as_id, as_list) (*It signs the segment and sends it to the next AS*)
+    in(ch_inner, as_list) (*It receives the AS list from the previous AS*)
     AS_signature_finishing(number_of_ASes-1, as_list)
   .
 
-let AS_signature(keymat: keymat, isd_as_id: isd_as) = 
-    let isd = get_isd(isd_as_id) in
+let AS_signature(keymat: keymat, isd_as_id: isd_as, as_list: as_entry_list) = 
     let as_identifier = get_as(isd_as_id) in
     let skey = gen_private_key(keymat) in 
     let pkey = gen_public_key(keymat) in
     let signature = sign(as_identifier, skey) in
     let as_entry = make_as_entry(as_identifier, signature, pkey) in
-    enlarge_as_list(as_list, as_entry)
+    let new_list = enlarge_as_list(as_list, as_entry) in
+    out(ch_inner, new_list)
   (*TODO:
     I should find a way to send the new as_list over a channel considering each AS on the path
     and stopping it when the AS is the remote core server AS
@@ -126,7 +124,7 @@ let AS_signature(keymat: keymat, isd_as_id: isd_as) =
 
 (*Iterate recursively over Segments and for each of them performs a signature verification of each AS.*)
 let Segment_list_iteration(seg_list: segment_list) = 
-  if is_empty_segment(seg_length) then
+  if seg_list = empty_seg_list then
     (*Base case: no more segments to verify*)
     0
   else
@@ -138,7 +136,7 @@ let Segment_list_iteration(seg_list: segment_list) =
 
 (*Iterate recursively over AS entries to verify each signature*)
 let AS_entry_list_signature_verification(as_list: as_entry_list) = 
-  if is_empty(as_entry_list) then
+  if as_entry_list = empty_as_list then
     (*Inner Base case, no more AS to verify*)
     0
   else
@@ -182,11 +180,11 @@ let LocalPathServer(keymat: keymat) =
   let pkey = gen_public_key(keymat) in
   let signature = sign(as, skey) in
   let as_entry = make_as_entry(as, signature, pkey) in
-  enlarge_as_list(as_list, as_entry)
-  enlarge_seg_list(seg_list, as_list)  
+  let updated_list = enlarge_as_list(as_list, as_entry)
+  let update_seg_list = enlarge_seg_list(seg_list, updated_list) 
   
-  out(ch_source_local_server, seg_list);
-  event send_segments(ch_source_local_server, seg_list)
+  out(ch_source_local_server, update_seg_list);
+  event send_segments(ch_source_local_server, update_seg_list)
 
   in(ch_source_local_server, trc_request: trust_root_configuration_request); (*Step 13*)
   out(ch_source_local_server, trc: trust_root_configuration);
@@ -209,11 +207,11 @@ let CoreServer(keymat: keymat) =
   let pkey = gen_public_key(keymat) in
   let signature = sign(as, skey) in
   let as_entry = make_as_entry(as, signature, pkey) in
-  enlarge_as_list(as_list, as_entry)
-  enlarge_seg_list(seg_list, as_list)
+  let updated_list = enlarge_as_list(as_list, as_entry)
+  let update_seg_list = enlarge_seg_list(seg_list, updated_list)
 
-  out(ch_local_server_core_server, seg_list);
-  event send_segments(ch_local_server_core_server, seg_list)
+  out(ch_local_server_core_server, update_seg_list);
+  event send_segments(ch_local_server_core_server, update_seg_list)
 
   in(ch_local_server_core_server, trc_request: trust_root_configuration_request); (*Step 10*)
   out(ch_local_server_core_server, trc: trust_root_configuration);
@@ -231,11 +229,11 @@ let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
   let pkey = gen_public_key(keymat) in
   let signature = sign(as, skey) in
   let as_entry = make_as_entry(as, signature, pkey) in
-  enlarge_as_list(as_list, as_entry)
-  enlarge_seg_list(seg_list, as_list)
+  let updated_list = enlarge_as_list(as_list, as_entry)
+  let update_seg_list = enlarge_seg_list(seg_list, updated_list)
   
-  out(ch_core_server_core_remote_server, seg_list);
-  event send_segments(ch_core_server_core_remote_server, seg_list)
+  out(ch_core_server_core_remote_server, update_seg_list);
+  event send_segments(ch_core_server_core_remote_server, update_seg_list)
   in(ch_core_server_core_remote_server, trc_request: trust_root_configuration_request); (*Step 7*)
   out(ch_core_server_core_remote_server, trc: trust_root_configuration);
   .
@@ -247,7 +245,7 @@ process
     | !(new k:keymat; LocalPathServer(k))
     | !(new k:keymat; CoreServer(k)) 
     | !(new k:keymat; CoreRemoteServer(k, trc)) 
-    | !( new as_list:as_entry_list; new seg_list:segment_list; AS_signature_finishing(10, as_list, seg_list))
+    | !( AS_signature_finishing(10, empty_as_list, empty_seg_list))
   )
  
 (* Query Definitions
