@@ -20,15 +20,15 @@ reduc forall as:int, signature:bitstring, key:public_key; get_key(make_as_entry(
 
 type as_entry_list. (* List of AS entries*)
 
-fun enlarge_as_list(as_entry_list, as_entry): as_entry_list.
+fun enlarge_as_list(as_entry_list, as_entry, int): as_entry_list.
 fun pop(as_entry_list): as_entry_list.
 fun get_head(as_entry_list): as_entry.
 reduc forall l:as_entry_list, e:as_entry, e1:as_entry; pop(enlarge_as_list(e1,enlarge_as_list(l, e))) = enlarge_as_list(l, e).
 reduc forall l:as_entry_list, e:as_entry; get_head(enlarge_as_list(l, e)) = e.
-pred is_empty(as_entry_list): bool.
+pred is_empty(int): bool.
 clauses
-  is_empty([]) = true; (*I do not know if these 2 are correct but I do not know how to model it otherwise*)
-  is_empty(_::_) = false.
+  is_empty(0) = true;
+  is_empty(!0) = false.
 
 pred contained_element(as_entry, as_entry_list).
 clauses
@@ -39,11 +39,14 @@ clauses
 type segment_list. (* List of segments*)
 
 fun enlarge_seg_list(segment_list, as_entry_list): segment_list.
-reduc forall l:segment_list, e:as_entry_list, e1:as_entry_list; pop_segment(enlarge_seg_list(e1,enlarge_seg_list(l, e))) = (enlarge_seg_list(l, e), e1).
+fun pop_segment(segment_list): segment_list.
+fun get_head_segment(segment_list): as_entry_list.
+reduc forall l:segment_list, e:as_entry_list, e1:as_entry_list; pop_segment(enlarge_seg_list(e1,enlarge_seg_list(l, e))) = enlarge_seg_list(l, e).
+reduc forall l:segment_list, e:as_entry_list; get_head_segment(enlarge_seg_list(l, e)) = e.
 pred is_empty_segment(segment_list): bool.
 clauses
-  is_empty_segment([]) = true; (*I do not know if these 2 are correct but I do not know how to model it otherwise*)
-  is_empty_segment(_::_) = false.
+  is_empty_segment(0) = true; (*I do not know if these 2 are correct but I do not know how to model it otherwise*)
+  is_empty_segment(!0) = false.
 
 pred contained_segment(as_entry_list, segment_list).
 clauses
@@ -107,7 +110,7 @@ let AS_signature_finishing(number_of_ASes:int, as_list:as_entry_list, seg_list: 
     AS_signature_finishing(number_of_ASes-1, as_list)
   .
 
-let AS_signature(keymat: keymat, isd_as_id: isd_as, as_list:as_entry_list) = 
+let AS_signature(keymat: keymat, isd_as_id: isd_as) = 
     let isd = get_isd(isd_as_id) in
     let as_identifier = get_as(isd_as_id) in
     let skey = gen_private_key(keymat) in 
@@ -123,18 +126,19 @@ let AS_signature(keymat: keymat, isd_as_id: isd_as, as_list:as_entry_list) =
 
 (*Iterate recursively over Segments and for each of them performs a signature verification of each AS.*)
 let Segment_list_iteration(seg_list: segment_list) = 
-  if is_empty_segment(seg_list) then
+  if is_empty_segment(seg_length) then
     (*Base case: no more segments to verify*)
     0
   else
-    let (seg_list1, as_entry_list) = pop_segment(seg_list) in
+    let as_entry_list = get_head_segment(seg_list) in
+    let seg_list1 = pop_segment(seg_list) in
     AS_entry_list_signature_verification(as_entry_list);
     Segment_list_iteration(seg_list1)
   .
 
 (*Iterate recursively over AS entries to verify each signature*)
 let AS_entry_list_signature_verification(as_list: as_entry_list) = 
-  if is_empty(as_list) then
+  if is_empty(as_entry_list) then
     (*Inner Base case, no more AS to verify*)
     0
   else
