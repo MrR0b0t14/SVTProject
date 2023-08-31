@@ -25,10 +25,10 @@ fun pop(as_entry_list): as_entry_list.
 fun get_head(as_entry_list): as_entry.
 reduc forall l:as_entry_list, e:as_entry, e1:as_entry; pop(enlarge_as_list(e1,enlarge_as_list(l, e))) = enlarge_as_list(l, e).
 reduc forall l:as_entry_list, e:as_entry; get_head(enlarge_as_list(l, e)) = e.
-pred is_empty(int): bool.
+pred is_empty(as_entry_list).
 clauses
-  is_empty(0) = true;
-  is_empty(!0) = false.
+  is_empty([]) = true;
+  is_empty(_::_) = false.
 
 pred contained_element(as_entry, as_entry_list).
 clauses
