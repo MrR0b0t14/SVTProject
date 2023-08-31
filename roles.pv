@@ -1,6 +1,6 @@
 (* Types *)
 type ISD_AS. (* ISD_AS identifier *)
-fun make_ISD_AS(isd:int, as:int): ISD_AS.
+fun make_ISD_AS(int, int): ISD_AS.
 reduc forall isd:int, as:int; make_ISD_AS(isd,as): ISD_AS.
 reduc forall isd:int, as:int; get_isd(make_ISD_AS(isd, as)) = isd.
 reduc forall isd:int, as:int; get_as(make_ISD_AS(isd, as)) = as.
