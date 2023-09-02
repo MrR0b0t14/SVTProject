@@ -60,14 +60,11 @@ fun gen_private_key(keymat): private_key.
 
 (* Symmetric Encryption and Decryption *)
 fun senc(bitstring, key): bitstring.
-fun sdec(bitstring, key): bitstring.
-
 (* Symmetric Encryption and Decryption with Verification *)
 reduc forall m:bitstring, k:keymat; sdec(senc(m, gen_key(k)), gen_key(k)) = m.
 
 (* Asymmetric Encryption and Decryption *)
 fun aenc(bitstring, public_key): bitstring.
-fun adec(bitstring, private_key): bitstring.
 reduc forall x:bitstring, y:keymat; adec(aenc(x,gen_public_key(y)),gen_private_key(y)) = x.
 
 (* Digital Signatures *)
