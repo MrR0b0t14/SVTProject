@@ -214,7 +214,7 @@ let CoreServer(keymat: keymat) =
   event send_segments(ch_local_server_core_server, update_seg_list);
 
   in(ch_local_server_core_server, trc_request: trust_root_configuration_request); (*Step 10*)
-  out(ch_local_server_core_server, trc: trust_root_configuration)
+  out(ch_local_server_core_server, trc)
   .
 
 let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
