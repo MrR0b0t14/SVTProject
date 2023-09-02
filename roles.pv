@@ -186,7 +186,7 @@ let LocalPathServer(keymat: keymat) =
   event send_segments(ch_source_local_server, update_seg_list);
 
   in(ch_source_local_server, trc_request: trust_root_configuration_request); (*Step 13*)
-  out(ch_source_local_server, trc);
+  out(ch_source_local_server, trc)
   .
 
 let CoreServer(keymat: keymat) =
