@@ -50,7 +50,7 @@ pred contained_segment(as_entry_list, segment_list).
 clauses
   forall l:segment_list, e:as_entry_list; contained_segment(e, enlarge_seg_list(l, e));
   forall l:segment_list, e:as_entry_list, e1:as_entry_list; contained_segment(e, l) -> contained_segment(e, enlarge_seg_list(l, e1));
-  forall l:segment_list, e:as_entry_list, l1:segment_list; pop_segment(enlarge_seg_list(l, e)) = l1 -> contained_segment(e, l1) = false.
+  forall l:segment_list, e:as_entry_list, l1:segment_list; pop_segment(enlarge_seg_list(l, e)) = l1 -> not_contained_segment(e, l1).
 
 
 (*Channels available*)
