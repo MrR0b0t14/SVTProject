@@ -138,7 +138,6 @@ let Segment_list_iteration(seg_list: segment_list) =
 let AS_entry_list_signature_verification(as_list: as_entry_list) = 
   if as_list = empty_as_list then
     Segment_list_iteration(as_list)
-    0
   else
     let as_entry = get_head(as_list) in
     let as_entry_list1 = pop(as_list) in
