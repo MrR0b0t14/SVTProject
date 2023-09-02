@@ -99,8 +99,8 @@ let AS_signature_finishing(number_of_ASes:nat, as_list:as_entry_list, seg_list: 
   else
     (
       let as_identifier = get_as(isd_as_id) in
-      let skey = gen_private_key(keymat) in 
-      let pkey = gen_public_key(keymat) in
+      let skey = gen_private_key(k) in 
+      let pkey = gen_public_key(k) in
       let signature = sign(as_identifier, skey) in
       let as_entry = make_as_entry(as_identifier, signature, pkey) in
       let new_list = enlarge_as_list(as_list, as_entry) in
