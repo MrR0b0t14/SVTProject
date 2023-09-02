@@ -63,7 +63,6 @@ free ch_inner: channel. (* Private channel between ASes*)
 
 (* Cryptographic Primitives *)
 (* Key Generation from Key Material *)
-fun gen_key(keymat): key.
 fun gen_public_key(keymat): public_key.
 fun gen_private_key(keymat): private_key.
 
