@@ -28,7 +28,7 @@ reduc forall l:as_entry_list, e:as_entry; get_head(enlarge_as_list(l, e)) = e.
 
 pred not_contained_element(as_entry, as_entry_list).
 clauses
-  forall e:as_entry, e1:as_entry, l:as_entry_list; not_contained_element(e1, enlarge_as_list(l, e)) = false.
+  forall e:as_entry, e1:as_entry, l:as_entry_list; not_contained_element(e1, enlarge_as_list(l, e)).
 
 pred contained_element(as_entry, as_entry_list).
 clauses
