@@ -73,7 +73,7 @@ reduc forall x:bitstring, y:keymat; adec(aenc(x,gen_public_key(y)),gen_private_k
 
 (* Digital Signatures *)
 fun ok():result.
-fun sign(bitstring, skey): bitstring.
+fun sign(bitstring, private_key): bitstring.
 reduc forall m:bitstring, y:keymat; getmess(sign(m,gen_private_key(y))) = m.
 reduc forall m:bitstring, y:keymat; checksign(sign(m,gen_private_key(y)), gen_public_key(y)) = ok().
 
