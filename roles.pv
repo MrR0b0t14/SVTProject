@@ -42,7 +42,7 @@ fun enlarge_seg_list(segment_list, as_entry_list): segment_list.
 reduc forall l:segment_list, e:as_entry_list, e1:as_entry_list; pop_segment(enlarge_seg_list(enlarge_seg_list(l, e),e1)) = enlarge_seg_list(l, e).
 reduc forall l:segment_list, e:as_entry_list; get_head_segment(enlarge_seg_list(l, e)) = e.
 
-pred not_contained_segment(as_entry, segment_list).
+pred not_contained_segment(as_entry_list, segment_list).
 clauses
   forall e:as_entry_list, e1:as_entry_list, l:segment_list; not_contained_segment(e1, enlarge_seg_list(l, e)).
 
