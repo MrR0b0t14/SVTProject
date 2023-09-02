@@ -22,8 +22,6 @@ type as_entry_list. (* List of AS entries*)
 
 const empty_as_list: as_entry_list.
 fun enlarge_as_list(as_entry_list, as_entry): as_entry_list.
-fun pop(as_entry_list): as_entry_list.
-fun get_head(as_entry_list): as_entry.
 reduc forall l:as_entry_list, e:as_entry, e1:as_entry; pop(enlarge_as_list(e1,enlarge_as_list(l, e))) = enlarge_as_list(l, e).
 reduc forall l:as_entry_list, e:as_entry; get_head(enlarge_as_list(l, e)) = e.
 
@@ -36,8 +34,6 @@ clauses
 type segment_list. (* List of segments*)
 const empty_seg_list: segment_list.
 fun enlarge_seg_list(segment_list, as_entry_list): segment_list.
-fun pop_segment(segment_list): segment_list.
-fun get_head_segment(segment_list): as_entry_list.
 reduc forall l:segment_list, e:as_entry_list, e1:as_entry_list; pop_segment(enlarge_seg_list(e1,enlarge_seg_list(l, e))) = enlarge_seg_list(l, e).
 reduc forall l:segment_list, e:as_entry_list; get_head_segment(enlarge_seg_list(l, e)) = e.
 
