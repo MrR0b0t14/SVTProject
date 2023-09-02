@@ -124,10 +124,10 @@ let AS_signature(keymat: keymat, isd_as_id: isd_as, as_list: as_entry_list, numb
   .
 
 (*Iterate recursively over Segments and for each of them performs a signature verification of each AS.*)
-let Segment_list_iteration(seg_list: segment_list) = 
+let Segment_list_iteration(seg_list: segment_list, trc_request: trust_root_configuration_request) = 
   if seg_list = empty_seg_list then
     (*Base case: no more segments to verify*)
-    out(ch_source_local_server, trc_request: trust_root_configuration_request);
+    out(ch_source_local_server, trc_request);
     in(ch_source_local_server, trc: trust_root_configuration); (*Step 14*)
     event verify_trust_root_configuration(trc)
   else
@@ -139,7 +139,7 @@ let Segment_list_iteration(seg_list: segment_list) =
 (*Iterate recursively over AS entries to verify each signature*)
 let AS_entry_list_signature_verification(as_list: as_entry_list) = 
   if as_list = empty_as_list then
-    Segment_list_iteration(as_list)
+    Segment_list_iteration(as_list, trc_request)
   else
     let as_entry = get_head(as_list) in
     let as_entry_list1 = pop(as_list) in
@@ -154,11 +154,12 @@ let AS_entry_list_signature_verification(as_list: as_entry_list) =
 
 let EndHost(keymat: keymat) =
   new destination: ISD_AS;
+  new trc_request: trust_root_configuration_request;
   out(ch_source_local_server, destination); (*Step 1*)
   event send_request(destination);
   in(ch_source_local_server, seg_list: segment_list); (*Step 12*)
   event end_host_received_paths(seg_list);
-  Segment_list_iteration(seg_list) (*How to stop here and raise error if verification fails?*)
+  Segment_list_iteration(seg_list, trc_request) (*How to stop here and raise error if verification fails?*)
   .
 
 let LocalPathServer(keymat: keymat) =
