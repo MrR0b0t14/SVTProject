@@ -42,11 +42,15 @@ fun enlarge_seg_list(segment_list, as_entry_list): segment_list.
 reduc forall l:segment_list, e:as_entry_list, e1:as_entry_list; pop_segment(enlarge_seg_list(enlarge_seg_list(l, e),e1)) = enlarge_seg_list(l, e).
 reduc forall l:segment_list, e:as_entry_list; get_head_segment(enlarge_seg_list(l, e)) = e.
 
+pred not_contained_segment(as_entry, as_entry_list).
+clauses
+  forall e:as_entry_list, e1:as_entry_list, l:segment_list; not_contained_segment(e1, enlarge_as_list(l, e)).
+
 pred contained_segment(as_entry_list, segment_list).
 clauses
   forall l:segment_list, e:as_entry_list; contained_segment(e, enlarge_seg_list(l, e));
   forall l:segment_list, e:as_entry_list, e1:as_entry_list; contained_segment(e, l) -> contained_segment(e, enlarge_seg_list(l, e1));
-  forall l:segment_list, e:as_entry_list, l1:segment_list; pop_segment(enlarge_seg_list(l, e)) = (l1, e) -> contained_segment(e, l1) = false.
+  forall l:segment_list, e:as_entry_list, l1:segment_list; pop_segment(enlarge_seg_list(l, e)) = l1 -> contained_segment(e, l1) = false.
 
 
 (*Channels available*)
