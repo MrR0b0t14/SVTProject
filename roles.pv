@@ -148,7 +148,6 @@ let AS_entry_list_signature_verification(as_list: as_entry_list) =
       AS_entry_list_signature_verification(as_entry_list1)
     else
       event signature_verification_failed(as_identifier) (*What happens then? Is the upper recursive part correct*)
-      0.
     .
 
 let EndHost(keymat: keymat) =
