@@ -23,7 +23,7 @@ type as_entry_list. (* List of AS entries*)
 
 const empty_as_list: as_entry_list.
 fun enlarge_as_list(as_entry_list, as_entry): as_entry_list.
-reduc forall l:as_entry_list, e:as_entry, e1:as_entry; pop(enlarge_as_list(e1,enlarge_as_list(l, e))) = enlarge_as_list(l, e).
+reduc forall l:as_entry_list, e:as_entry, e1:as_entry; pop(enlarge_as_list(enlarge_as_list(l, e),e1)) = enlarge_as_list(l, e).
 reduc forall l:as_entry_list, e:as_entry; get_head(enlarge_as_list(l, e)) = e.
 
 pred contained_element(as_entry, as_entry_list).
