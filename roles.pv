@@ -104,7 +104,7 @@ let AS_signature_finishing(number_of_ASes:int, as_list:as_entry_list, seg_list: 
     (
       AS_signature(k, isd_as_id, as_list) (*It signs the segment and sends it to the next AS*)
       in(ch_inner, as_list: as_entry_list); (*It receives the AS list from the previous AS*)
-      AS_signature_finishing(number_of_ASes-1, as_list)
+      (*AS_signature_finishing(number_of_ASes-1, as_list)*)
       .
     )
   .
