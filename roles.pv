@@ -131,14 +131,13 @@ let Segment_list_iteration(seg_list: segment_list) =
   else
     let as_entry_list = get_head_segment(seg_list) in
     let seg_list1 = pop_segment(seg_list) in
-    AS_entry_list_signature_verification(as_entry_list);
-    Segment_list_iteration(seg_list1)
+    AS_entry_list_signature_verification(as_entry_list)
   .
 
 (*Iterate recursively over AS entries to verify each signature*)
 let AS_entry_list_signature_verification(as_list: as_entry_list) = 
-  if as_entry_list = empty_as_list then
-    (*Inner Base case, no more AS to verify*)
+  if as_list = empty_as_list then
+    Segment_list_iteration(as_list)
     0
   else
     let as_entry = get_head(as_list) in
