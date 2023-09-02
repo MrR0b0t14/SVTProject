@@ -98,26 +98,17 @@ let AS_signature_finishing(number_of_ASes:nat, as_list:as_entry_list, seg_list: 
   )
   else
     (
-      AS_signature(k, isd_as_id, as_list, number_of_ASes) (*It signs the segment and sends it to the next AS*)
+      let as_identifier = get_as(isd_as_id) in
+      let skey = gen_private_key(keymat) in 
+      let pkey = gen_public_key(keymat) in
+      let signature = sign(as_identifier, skey) in
+      let as_entry = make_as_entry(as_identifier, signature, pkey) in
+      let new_list = enlarge_as_list(as_list, as_entry) in
+      AS_signature_finishing(number_of_ASes-1, new_list)(*It signs the segment and sends it to the next AS*)
       (*It receives the AS list from the previous AS*)
       (**)
     )
     .
-
-
-let AS_signature(keymat: keymat, isd_as_id: isd_as, as_list: as_entry_list, number_of_ASes: nat) = 
-    let as_identifier = get_as(isd_as_id) in
-    let skey = gen_private_key(keymat) in 
-    let pkey = gen_public_key(keymat) in
-    let signature = sign(as_identifier, skey) in
-    let as_entry = make_as_entry(as_identifier, signature, pkey) in
-    let new_list = enlarge_as_list(as_list, as_entry) in
-    AS_signature_finishing(number_of_ASes-1, new_list)
-  (*TODO:
-    I should find a way to send the new as_list over a channel considering each AS on the path
-    and stopping it when the AS is the remote core server AS
-  *)
-  .
 
 (*Iterate recursively over Segments and for each of them performs a signature verification of each AS.*)
 let Segment_list_iteration(seg_list: segment_list, trc_request: trust_root_configuration_request) = 
