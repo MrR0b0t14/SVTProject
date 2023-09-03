@@ -163,7 +163,7 @@ let EndHost(keymat: keymat) =
   new destination: ISD_AS;
   new trc_request: trust_root_configuration_request;
   event send_request(ch_source_local_server, destination);
-  out(ch_source_local_server, destination); (*Step 1*)
+  (*out(ch_source_local_server, destination); (*Step 1*)*)
   in(ch_source_local_server, as_list: as_entry_list); (*Step 12*)
   event end_host_received_paths(as_list);
   AS_signature_verification(as_list, trc_request) (*How to stop here and raise error if verification fails?*)
@@ -247,4 +247,7 @@ process
   (
     (new k:keymat; EndHost(k))
     | (new k:keymat; LocalPathServer(k))
+    | (new k:keymat; CoreServer(k)) 
+    | (new k:keymat; CoreRemoteServer(k, trc)) 
+    | ( AS_signature_finishing())
   )
