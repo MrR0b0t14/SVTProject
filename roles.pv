@@ -90,7 +90,7 @@ event signature_verification_ok(AS).
 event send_segments(channel, as_entry_list).
 
 (*Query definition*)
-query ch:channel, isd_as:ISD_AS; event(send_request(ch, isd_as)).
+query ch:channel, isd_as:ISD_AS; not event(send_request(ch, isd_as)).
 
 let AS_signature_finishing() =
   new k:keymat; new as_identifier:AS;
@@ -149,7 +149,7 @@ let AS_signature_verification(signatures_to_verify: as_entry_list, trc_request: 
     event signature_verification_ok(dest_as_identifier)
   else
     event signature_verification_failed(dest_as_identifier); (*What happens then? Is the upper recursive part correct*)
-    
+
   out(ch_source_local_server, trc_request);
   in(ch_source_local_server, trc: trust_root_configuration); 
   event verify_trust_root_configuration(trc)
