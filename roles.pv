@@ -58,8 +58,8 @@ clauses
 
 
 (*Channels available*)
-free ch_source_local_server: channel. (* Public channel between the source EH and Local Path Server*)
-free ch_local_server_core_server: channel. (* Public channel between the Local Path Server and Core Server *)
+free ch_source_local_server: channel. [private] (* Public channel between the source EH and Local Path Server*)
+free ch_local_server_core_server: channel. [private] (* Public channel between the Local Path Server and Core Server *)
 free ch_core_server_core_remote_server: channel. (* Public channel between the Core Server and Core Remote Server, in the destination ISD*)
 free ch_ASes: channel. (* Public channel between ASes*)
 free ch_AS_core_server: channel. (* Public channel between AS and Remote Core Server*)
@@ -93,7 +93,7 @@ event send_segments(channel, as_entry_list).
 query ch:channel, isd_as:ISD_AS; event(send_request(ch, isd_as)).
 query isd_as:ISD_AS; event(send_request(ch_local_server_core_server, isd_as)).
 query isd_as:ISD_AS; event(send_request(ch_source_local_server, isd_as)). 
-query isd_as:ISD_AS; event(send_request(ch_source_local_server, isd_as)) ==> event(send_request(ch_local_server_core_server, isd_as)).
+query isd_as:ISD_AS; event(send_request(ch_source_local_server, isd_as)) ==> event(send_request(ch_local_server_core_server, isd_as))  .
 query as_list:as_entry_list; event(local_server_receive_path(as_list)).
 
 let AS_signature_finishing() =
@@ -163,7 +163,7 @@ let EndHost(keymat: keymat) =
   new destination: ISD_AS;
   new trc_request: trust_root_configuration_request;
   event send_request(ch_source_local_server, destination);
-  (*out(ch_source_local_server, destination); (*Step 1*)*)
+  out(ch_source_local_server, destination); (*Step 1*)
   in(ch_source_local_server, as_list: as_entry_list); (*Step 12*)
   event end_host_received_paths(as_list);
   AS_signature_verification(as_list, trc_request) (*How to stop here and raise error if verification fails?*)
