@@ -166,6 +166,7 @@ let EndHost(keymat: keymat) =
   new trc_request: trust_root_configuration_request;
   event send_request(ch_source_local_server, destination);
   event sendA();
+  event sendB();
   out(ch_source_local_server, destination); (*Step 1*)
   in(ch_source_local_server, as_list: as_entry_list); (*Step 12*)
   event end_host_received_paths(as_list);
@@ -177,7 +178,6 @@ let LocalPathServer(keymat: keymat) =
   new made_trc_request: trust_root_configuration_request;
   in(ch_source_local_server, isd_as: ISD_AS);        (*Step 2*)
   out(ch_local_server_core_server, isd_as);
-  event sendB();
   event send_request(ch_local_server_core_server, isd_as);
   in(ch_local_server_core_server, as_list: as_entry_list); (*Step 9*)
   event local_server_receive_path(as_list);
