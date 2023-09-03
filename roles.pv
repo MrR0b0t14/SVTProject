@@ -184,23 +184,17 @@ let AS_signature_verification(signatures_to_verify: as_entry_list, trc_request: 
     event signature_verification_failed(as_identifier); (*What happens then? Is the upper recursive part correct*)
   
   if checksign(core_remote_signature, core_remote_pkey) = ok() then
-  (
-    event signature_verification_ok(core_remote_as_identifier);
-  )
+    event signature_verification_ok(core_remote_as_identifier)
   else
     event signature_verification_failed(as_identifier); (*What happens then? Is the upper recursive part correct*)
   
   if checksign(core_local_signature, core_local_pkey) = ok() then
-  (
-    event signature_verification_ok(core_local_as_identifier);
-  )
+    event signature_verification_ok(core_local_as_identifier)
   else
     event signature_verification_failed(as_identifier); (*What happens then? Is the upper recursive part correct*)
 
   if checksign(local_signature, local_pkey) = ok() then
-  (
-    event signature_verification_ok(local_as_identifier);
-  )
+    event signature_verification_ok(local_as_identifier)
   else
     event signature_verification_failed(as_identifier); (*What happens then? Is the upper recursive part correct*)
 
