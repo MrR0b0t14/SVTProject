@@ -247,5 +247,4 @@ process
   (
     (new k:keymat; EndHost(k))
     | (new k:keymat; LocalPathServer(k))
-    | ( AS_signature_finishing())
   )
