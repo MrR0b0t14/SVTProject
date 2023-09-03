@@ -130,26 +130,26 @@ let AS_signature_verification(signatures_to_verify: as_entry_list, trc_request: 
   let local_signature = get_signature(local_as) in
   let local_pkey = get_public_key(local_as) in
 
-  if checksign(dest_signature, dest_pkey) = ok() then
-    event signature_verification_ok(dest_as_identifier)
-  else
-    event signature_verification_failed(dest_as_identifier); (*What happens then? Is the upper recursive part correct*)
-  
-  if checksign(core_remote_signature, core_remote_pkey) = ok() then
-    event signature_verification_ok(core_remote_as_identifier)
-  else
-    event signature_verification_failed(core_remote_as_identifier); (*What happens then? Is the upper recursive part correct*)
-  
-  if checksign(core_local_signature, core_local_pkey) = ok() then
-    event signature_verification_ok(core_local_as_identifier)
-  else
-    event signature_verification_failed(core_local_as_identifier); (*What happens then? Is the upper recursive part correct*)
-
   if checksign(local_signature, local_pkey) = ok() then
     event signature_verification_ok(local_as_identifier)
   else
     event signature_verification_failed(local_as_identifier); (*What happens then? Is the upper recursive part correct*)
 
+  if checksign(core_local_signature, core_local_pkey) = ok() then
+    event signature_verification_ok(core_local_as_identifier)
+  else
+    event signature_verification_failed(core_local_as_identifier); (*What happens then? Is the upper recursive part correct*)
+
+  if checksign(core_remote_signature, core_remote_pkey) = ok() then
+    event signature_verification_ok(core_remote_as_identifier)
+  else
+    event signature_verification_failed(core_remote_as_identifier); (*What happens then? Is the upper recursive part correct*)
+  
+  if checksign(dest_signature, dest_pkey) = ok() then
+    event signature_verification_ok(dest_as_identifier)
+  else
+    event signature_verification_failed(dest_as_identifier); (*What happens then? Is the upper recursive part correct*)
+    
   out(ch_source_local_server, trc_request);
   in(ch_source_local_server, trc: trust_root_configuration); 
   event verify_trust_root_configuration(trc)
