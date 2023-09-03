@@ -103,8 +103,6 @@ let AS_signature_finishing(number_of_ASes:nat, as_list:as_entry_list, seg_list: 
       let signature = sign(as_identifier, skey) in
       let as_entry_new = make_as_entry(as_identifier, signature, pkey) in
       let new_list = enlarge_as_list(as_list, as_entry_new) in
-      number_of_ASes = number_of_ASes - 1;
-      as_list = new_list;
 
 let AS_signature_loop(number_of_ASes:nat, as_list:as_entry_list, seg_list: segment_list) =
   foreach i in number_of_ASes do
