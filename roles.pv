@@ -4,6 +4,10 @@ fun make_ISD_AS(nat, nat): ISD_AS.
 reduc forall isd:nat, as:nat; get_isd(make_ISD_AS(isd, as)) = isd.
 reduc forall isd:nat, as:nat; get_as(make_ISD_AS(isd, as)) = as.
 
+type AS. (* AS identifier *)
+fun make_AS(nat): AS.
+reduc forall as:nat; get_as(make_AS(as)) = as.
+
 type symmetric_key. (* Symmetric key *)
 type keymat. (* Key material *)
 type public_key. (* Public key *)
@@ -141,7 +145,7 @@ let AS_entry_list_signature_verification(as_list: as_entry_list) =
 *)
 
 let AS_signature_finishing() =
-  new k:keymat; new as_identifier:nat;
+  new k:keymat; new as_identifier:AS;
     let skey = gen_private_key(k) in 
     let pkey = gen_public_key(k) in
     let signature = sign(as_identifier, skey) in
@@ -214,7 +218,7 @@ let EndHost(keymat: keymat) =
   .
 
 let LocalPathServer(keymat: keymat) =
-  new as: nat;
+  new as:AS;
   new trc_request: trust_root_configuration_request;
   in(ch_source_local_server, isd_as);        (*Step 2*)
   out(ch_local_server_core_server, isd_as);
@@ -240,7 +244,7 @@ let LocalPathServer(keymat: keymat) =
   .
 
 let CoreServer(keymat: keymat) =
-  new as: nat;
+  new as: AS;
   new trc_request: trust_root_configuration_request;
 
   in(ch_local_server_core_server, isd_as); (*Step 3*)
@@ -267,7 +271,7 @@ let CoreServer(keymat: keymat) =
   .
 
 let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
-  new as: nat;
+  new as: AS;
   new as_list: as_entry_list;
   in(ch_core_server_core_remote_server, isd_as);               (*Step 4*)
   in(ch_AS_core_server, single_signature: as_entry);   (*Step 5*)
