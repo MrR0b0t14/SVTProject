@@ -21,7 +21,7 @@ type result.
 fun make_as_entry(AS, bitstring, public_key): as_entry.
 reduc forall as:AS, signature:bitstring, key:public_key; get_as_from_entry(make_as_entry(as, signature, key)) = as.
 reduc forall as:AS, signature:bitstring, key:public_key; get_signature(make_as_entry(as, signature, key)) = signature.
-reduc forall as:AS, signature:bitstring, key:public_key; get_key(make_as_entry(as, signature, key)) = key.
+reduc forall as:AS, signature:bitstring, key:public_key; get_public_key(make_as_entry(as, signature, key)) = key.
 
 type as_entry_list. (* List of AS entries*)
 
