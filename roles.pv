@@ -83,7 +83,7 @@ reduc forall m:AS, y:keymat; checksign(sign(m,gen_private_key(y)), gen_public_ke
 event send_request(channel, ISD_AS).
 event end_host_received_paths(as_entry_list).
 event local_server_receive_path(as_entry_list).
-event core_server_receive_path(as_entry_list).
+event core_server_receive_path(as_entry).
 event verify_trust_root_configuration(trust_root_configuration).
 event signature_verification_failed(AS).
 event signature_verification_ok(AS).
