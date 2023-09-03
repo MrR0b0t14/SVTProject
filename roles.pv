@@ -89,24 +89,29 @@ query ch:channel, isd_as:ISD_AS; event(send_request(ch, isd_as)).
 
 (* Process Definitions *)
 let AS_signature_finishing(number_of_ASes:nat, as_list:as_entry_list, seg_list: segment_list) =
-  new k:keymat; new isd_as_id:ISD_AS;
-  if number_of_ASes = 0 then
-  (
-    (*Base case: no more ASes to sign*)
-    let new_seg_list = enlarge_seg_list(seg_list, as_list) in (*It adds the AS list to the segment list*)
-    out(ch_AS_core_server, new_seg_list) (*It sends to the Remote Core AS the segment signed by all the ASes*)
-  )
-  else
-    let as_identifier = get_as(isd_as_id) in
-    let skey = gen_private_key(k) in 
-    let pkey = gen_public_key(k) in
-    let signature = sign(as_identifier, skey) in
-    let as_entry_new = make_as_entry(as_identifier, signature, pkey) in
-    let new_list = enlarge_as_list(as_list, as_entry_new) in
+    new k:keymat; new isd_as_id:ISD_AS;
+    if number_of_ASes = 0 then
+    (
+      (*Base case: no more ASes to sign*)
+      let new_seg_list = enlarge_seg_list(seg_list, as_list) in (*It adds the AS list to the segment list*)
+      out(ch_AS_core_server, new_seg_list) (*It sends to the Remote Core AS the segment signed by all the ASes*)
+    )
+    else
+      let as_identifier = get_as(isd_as_id) in
+      let skey = gen_private_key(k) in 
+      let pkey = gen_public_key(k) in
+      let signature = sign(as_identifier, skey) in
+      let as_entry_new = make_as_entry(as_identifier, signature, pkey) in
+      let new_list = enlarge_as_list(as_list, as_entry_new) in
+      number_of_ASes = number_of_ASes - 1;
+      as_list = new_list;
 
 let AS_signature_loop(number_of_ASes:nat, as_list:as_entry_list, seg_list: segment_list) =
-  ! number_of_ASes >= 0 AS_signature_finishing(number_of_ASes, as_list, seg_list)
+  foreach i in number_of_ASes do
+    AS_signature_finishing(number_of_ASes, as_list, seg_list)
   .
+
+(*Iterate recursively over AS entries to verify each signature*)
 
 (*Iterate recursively over Segments and for each of them performs a signature verification of each AS.*)
 let Segment_list_iteration(seg_list: segment_list, trc_request: trust_root_configuration_request) = 
