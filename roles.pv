@@ -247,7 +247,5 @@ process
   (
     (new k:keymat; EndHost(k))
     | (new k:keymat; LocalPathServer(k))
-    | (new k:keymat; CoreServer(k)) 
-    | (new k:keymat; CoreRemoteServer(k, trc)) 
     | ( AS_signature_finishing())
   )
