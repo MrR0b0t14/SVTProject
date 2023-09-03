@@ -219,13 +219,13 @@ let EndHost(keymat: keymat) =
 
 let LocalPathServer(keymat: keymat) =
   new as:AS;
-  new trc_request: trust_root_configuration_request;
+  new made_trc_request: trust_root_configuration_request;
   in(ch_source_local_server, isd_as: ISD_AS);        (*Step 2*)
   out(ch_local_server_core_server, isd_as);
   event send_request(ch_local_server_core_server, isd_as);
   in(ch_local_server_core_server, as_list: as_entry_list); (*Step 9*)
   event local_server_receive_path(as_list);
-  out(ch_local_server_core_server, trc_request);
+  out(ch_local_server_core_server, made_trc_request);
   in(ch_local_server_core_server, trc: trust_root_configuration); (*Step 11*)
   event verify_trust_root_configuration(trc);
   
@@ -233,8 +233,8 @@ let LocalPathServer(keymat: keymat) =
   let skey = gen_private_key(keymat) in 
   let pkey = gen_public_key(keymat) in
   let signature = sign(as, skey) in
-  let as_entry = make_as_entry(as, signature, pkey) in
-  let updated_list = enlarge_as_list(as_list, as_entry) in
+  let as_entry_new = make_as_entry(as, signature, pkey) in
+  let updated_list = enlarge_as_list(as_list, as_entry_new) in
   
   out(ch_source_local_server, updated_list);
   event send_segments(ch_source_local_server, updated_list);
@@ -245,14 +245,14 @@ let LocalPathServer(keymat: keymat) =
 
 let CoreServer(keymat: keymat) =
   new as: AS;
-  new trc_request: trust_root_configuration_request;
+  new made_trc_request: trust_root_configuration_request;
 
-  in(ch_local_server_core_server, isd_as); (*Step 3*)
+  in(ch_local_server_core_server, isd_as: ISD_AS); (*Step 3*)
   out(ch_core_server_core_remote_server, isd_as);
   event send_request(ch_core_server_core_remote_server, isd_as); 
   in(ch_core_server_core_remote_server, as_list: as_entry_list); (*Step 6*)
   event core_server_receive_path(as_list);
-  out(ch_core_server_core_remote_server, trc_request);
+  out(ch_core_server_core_remote_server, made_trc_request);
   in(ch_core_server_core_remote_server, trc: trust_root_configuration); (*Step 8*)
   event verify_trust_root_configuration(trc);
 
@@ -273,7 +273,7 @@ let CoreServer(keymat: keymat) =
 let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
   new as: AS;
   new as_list: as_entry_list;
-  in(ch_core_server_core_remote_server, isd_as);               (*Step 4*)
+  in(ch_core_server_core_remote_server, isd_as: ISD_AS);               (*Step 4*)
   in(ch_AS_core_server, single_signature: as_entry);   (*Step 5*)
   event core_server_receive_path(single_signature);
 
