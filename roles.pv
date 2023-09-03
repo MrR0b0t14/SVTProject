@@ -102,8 +102,8 @@ let AS_signature_finishing(number_of_ASes:nat, as_list:as_entry_list, seg_list: 
       let skey = gen_private_key(k) in 
       let pkey = gen_public_key(k) in
       let signature = sign(as_identifier, skey) in
-      let as_entry = make_as_entry(as_identifier, signature, pkey) in
-      let new_list = enlarge_as_list(as_list, as_entry) in
+      let as_entry_new = make_as_entry(as_identifier, signature, pkey) in
+      let new_list = enlarge_as_list(as_list, as_entry_new) in
       AS_signature_finishing(number_of_ASes-1, new_list)(*It signs the segment and sends it to the next AS*)
       (*It receives the AS list from the previous AS*)
       (**)
