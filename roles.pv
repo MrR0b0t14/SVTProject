@@ -88,56 +88,65 @@ event send_segments(channel, segment_list).
 query ch:channel, isd_as:ISD_AS; event(send_request(ch, isd_as)).
 
 (* Process Definitions *)
-let rec AS_signature_finishing(number_of_ASes:nat, as_list:as_entry_list, seg_list: segment_list) =
-  new k:keymat; new isd_as_id:ISD_AS;
-  if number_of_ASes = 0 then
+let AS_signature_finishing(number_of_ASes:nat, as_list:as_entry_list, seg_list: segment_list) =
+  ! number_of_ASes >= 0
   (
-    (*Base case: no more ASes to sign*)
-    let new_seg_list = enlarge_seg_list(seg_list, as_list) in (*It adds the AS list to the segment list*)
-    out(ch_AS_core_server, new_seg_list) (*It sends to the Remote Core AS the segment signed by all the ASes*)
-  )
-  else
+    new k:keymat; new isd_as_id:ISD_AS;
+    if number_of_ASes = 0 then
     (
-      let as_identifier = get_as(isd_as_id) in
-      let skey = gen_private_key(k) in 
-      let pkey = gen_public_key(k) in
-      let signature = sign(as_identifier, skey) in
-      let as_entry_new = make_as_entry(as_identifier, signature, pkey) in
-      let new_list = enlarge_as_list(as_list, as_entry_new) in
-      AS_signature_finishing(number_of_ASes-1, new_list)(*It signs the segment and sends it to the next AS*)
-      (*It receives the AS list from the previous AS*)
-      (**)
+      (*Base case: no more ASes to sign*)
+      let new_seg_list = enlarge_seg_list(seg_list, as_list) in (*It adds the AS list to the segment list*)
+      out(ch_AS_core_server, new_seg_list) (*It sends to the Remote Core AS the segment signed by all the ASes*)
     )
+    else
+      (
+        let as_identifier = get_as(isd_as_id) in
+        let skey = gen_private_key(k) in 
+        let pkey = gen_public_key(k) in
+        let signature = sign(as_identifier, skey) in
+        let as_entry_new = make_as_entry(as_identifier, signature, pkey) in
+        let new_list = enlarge_as_list(as_list, as_entry_new) in
+        number_of_ASes = number_of_ASes - 1;
+        as_list = new_list;
+      )
+  )
     .
 
 (*Iterate recursively over Segments and for each of them performs a signature verification of each AS.*)
 let Segment_list_iteration(seg_list: segment_list, trc_request: trust_root_configuration_request) = 
   if seg_list = empty_seg_list then
-    (*Base case: no more segments to verify*)
-    out(ch_source_local_server, trc_request);
-    in(ch_source_local_server, trc: trust_root_configuration); (*Step 14*)
-    event verify_trust_root_configuration(trc)
+    ((*Base case: no more segments to verify*)
+      out(ch_source_local_server, trc_request);
+      in(ch_source_local_server, trc: trust_root_configuration); (*Step 14*)
+      event verify_trust_root_configuration(trc)
+    )
   else
-    let as_entry_list = get_head_segment(seg_list) in
-    let seg_list1 = pop_segment(seg_list) in
-    AS_entry_list_signature_verification(as_entry_list)
+    (
+      let as_entry_list = get_head_segment(seg_list) in
+      let seg_list1 = pop_segment(seg_list) in
+      AS_entry_list_signature_verification(as_entry_list)
+    )
   .
 
 (*Iterate recursively over AS entries to verify each signature*)
 let AS_entry_list_signature_verification(as_list: as_entry_list) = 
   if as_list = empty_as_list then
-    Segment_list_iteration(as_list, trc_request)
+    (
+      Segment_list_iteration(as_list, trc_request)
+    )
   else
-    let as_entry = get_head(as_list) in
-    let as_entry_list1 = pop(as_list) in
-    let as_identifier = get_as_identifier(as_entry) in
-    let signature = get_signature(as_entry) in
-    let pkey = get_public_key(as_entry) in
-    if checksign(signature, pkey) = ok() then
-      AS_entry_list_signature_verification(as_entry_list1)
-    else
-      event signature_verification_failed(as_identifier) (*What happens then? Is the upper recursive part correct*)
-    .
+    (
+      let as_entry = get_head(as_list) in
+      let as_entry_list1 = pop(as_list) in
+      let as_identifier = get_as_identifier(as_entry) in
+      let signature = get_signature(as_entry) in
+      let pkey = get_public_key(as_entry) in
+      if checksign(signature, pkey) = ok() then
+        AS_entry_list_signature_verification(as_entry_list1)
+      else
+        event signature_verification_failed(as_identifier) (*What happens then? Is the upper recursive part correct*)
+      .
+    )
 
 let EndHost(keymat: keymat) =
   new destination: ISD_AS;
