@@ -220,7 +220,7 @@ let EndHost(keymat: keymat) =
 let LocalPathServer(keymat: keymat) =
   new as:AS;
   new trc_request: trust_root_configuration_request;
-  in(ch_source_local_server, isd_as);        (*Step 2*)
+  in(ch_source_local_server, isd_as: ISD_AS);        (*Step 2*)
   out(ch_local_server_core_server, isd_as);
   event send_request(ch_local_server_core_server, isd_as);
   in(ch_local_server_core_server, as_list: as_entry_list); (*Step 9*)
