@@ -163,22 +163,22 @@ let AS_signature_verification(signatures_to_verify: as_entry_list, trc_request: 
   let local_as = get_head(signatures_to_verify3) in
 
   (*Extraction from destination entry*)
-  let dest_as_identifier = get_as_identifier(AS_destination) in
+  let dest_as_identifier = get_as(AS_destination) in
   let dest_signature = get_signature(AS_destination) in
   let dest_pkey = get_public_key(AS_destination) in
 
   (*Extraction from core remote entry*)
-  let core_remote_as_identifier = get_as_identifier(core_remote_as) in
+  let core_remote_as_identifier = get_as(core_remote_as) in
   let core_remote_signature = get_signature(core_remote_as) in
   let core_remote_pkey = get_public_key(core_remote_as) in
 
   (*Extraction from core local entry*)
-  let core_local_as_identifier = get_as_identifier(core_local_as) in
+  let core_local_as_identifier = get_as(core_local_as) in
   let core_local_signature = get_signature(core_local_as) in
   let core_local_pkey = get_public_key(core_local_as) in
 
   (*Extraction from local entry*)
-  let local_as_identifier = get_as_identifier(local_as) in
+  let local_as_identifier = get_as(local_as) in
   let local_signature = get_signature(local_as) in
   let local_pkey = get_public_key(local_as) in
 
