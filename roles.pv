@@ -179,7 +179,7 @@ let AS_signature_verification(signatures_to_verify: as_entry_list, trc_request: 
   let local_pkey = get_public_key(local_as) in
 
   if checksign(dest_signature, pkey) = ok() then
-    event signature_verification_ok(dest_as_identifier);
+    event signature_verification_ok(dest_as_identifier)
   else
     event signature_verification_failed(as_identifier); (*What happens then? Is the upper recursive part correct*)
   
