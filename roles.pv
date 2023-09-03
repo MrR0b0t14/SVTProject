@@ -88,12 +88,14 @@ event verify_trust_root_configuration(trust_root_configuration).
 event signature_verification_failed(AS).
 event signature_verification_ok(AS).
 event send_segments(channel, as_entry_list).
+event sendA(ISD_AS);
+event sendB(ISD_AS);
 
 (*Query definition*)
 query ch:channel, isd_as:ISD_AS; event(send_request(ch, isd_as)).
 query isd_as:ISD_AS; event(send_request(ch_local_server_core_server, isd_as)).
 query isd_as:ISD_AS; event(send_request(ch_source_local_server, isd_as)). 
-query isd_as:ISD_AS; event(send_request(ch_source_local_server, isd_as)) ==> event(send_request(ch_local_server_core_server, isd_as)).
+query isd_as:ISD_AS; event(sendA(isd_as)) ==> event(sendB(isd_as)).
 query as_list:as_entry_list; event(local_server_receive_path(as_list)).
 
 let AS_signature_finishing() =
@@ -163,6 +165,7 @@ let EndHost(keymat: keymat) =
   new destination: ISD_AS;
   new trc_request: trust_root_configuration_request;
   event send_request(ch_source_local_server, destination);
+  event sendA(destination);
   out(ch_source_local_server, destination); (*Step 1*)
   in(ch_source_local_server, as_list: as_entry_list); (*Step 12*)
   event end_host_received_paths(as_list);
@@ -174,6 +177,7 @@ let LocalPathServer(keymat: keymat) =
   new made_trc_request: trust_root_configuration_request;
   in(ch_source_local_server, isd_as: ISD_AS);        (*Step 2*)
   out(ch_local_server_core_server, isd_as);
+  event sendB(isd_as);
   event send_request(ch_local_server_core_server, isd_as);
   in(ch_local_server_core_server, as_list: as_entry_list); (*Step 9*)
   event local_server_receive_path(as_list);
