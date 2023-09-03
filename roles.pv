@@ -95,7 +95,7 @@ event sendB().
 query ch:channel, isd_as:ISD_AS; event(send_request(ch, isd_as)).
 query isd_as:ISD_AS; event(send_request(ch_local_server_core_server, isd_as)).
 query isd_as:ISD_AS; event(send_request(ch_source_local_server, isd_as)). 
-query isd_as:ISD_AS; event(sendA()) ==> event(sendB()).
+query isd_as:ISD_AS; event(sendB()) ==> event(sendA()).
 query as_list:as_entry_list; event(local_server_receive_path(as_list)).
 
 let AS_signature_finishing() =
