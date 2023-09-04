@@ -58,8 +58,8 @@ clauses
 
 
 (*Channels available*)
-free ch_source_local_server: channel [private]. (* Public channel between the source EH and Local Path Server*)
-free ch_local_server_core_server: channel [private]. (* Public channel between the Local Path Server and Core Server *)
+free ch_source_local_server: channel. (* Public channel between the source EH and Local Path Server*)
+free ch_local_server_core_server: channel. (* Public channel between the Local Path Server and Core Server *)
 free ch_core_server_core_remote_server: channel. (* Public channel between the Core Server and Core Remote Server, in the destination ISD*)
 free ch_ASes: channel. (* Public channel between ASes*)
 free ch_AS_core_server: channel. (* Public channel between AS and Remote Core Server*)
