@@ -90,13 +90,15 @@ event verify_trust_root_configuration(trust_root_configuration).
 event signature_verification_failed(AS).
 event signature_verification_ok(AS).
 event send_segments(channel, as_entry_list).
+event signature_done_local_path_server(public_key).
+event signature_verification_successful_end_local(public_key).
 
 (*Query definition*)
 query ch:channel, isd_as:ISD_AS; event(send_request(ch, isd_as)).
 query isd_as:ISD_AS; event(send_request(ch_local_server_core_server, isd_as)).
 query isd_as:ISD_AS; event(send_request(ch_source_local_server, isd_as)). 
-query isd_as:ISD_AS; event(send_request(ch_local_server_core_server, isd_as)) ==> event(send_request(ch_source_local_server, isd_as)) .
 query as_list:as_entry_list; event(local_server_receive_path(as_list)).
+query pkey: public_key; event(signature_verification_successful_end_local(pkey)) ==> event(signature_done_local_path_server(pkey)).
 
 let AS_signature_finishing() =
   new k:keymat; new as_identifier:AS;
@@ -137,7 +139,7 @@ let AS_signature_verification(signatures_to_verify: as_entry_list, trc_request: 
   let local_pkey = get_public_key(local_as) in
 
   if checksign(local_signature, local_pkey) = ok() then
-    event signature_verification_ok(local_as_identifier)
+    event signature_verification_successful_end_local(local_pkey)
   else
     event signature_verification_failed(local_as_identifier); (*What happens then? Is the upper recursive part correct*)
 
@@ -164,7 +166,7 @@ let AS_signature_verification(signatures_to_verify: as_entry_list, trc_request: 
 let EndHost(keymat: keymat) =
   new destination: ISD_AS;
   new trc_request: trust_root_configuration_request;
-  event send_request_end_local();
+  event send_request(ch_source_local_server, destination);
   out(ch_source_local_server, destination); (*Step 1*)
   in(ch_source_local_server, as_list: as_entry_list); (*Step 12*)
   event end_host_received_paths(as_list);
@@ -176,7 +178,7 @@ let LocalPathServer(keymat: keymat) =
   new made_trc_request: trust_root_configuration_request;
   in(ch_source_local_server, isd_as: ISD_AS);        (*Step 2*)
   out(ch_local_server_core_server, isd_as);
-  event send_request_local_to_core();
+  event send_request(ch_local_server_core_server, isd_as);
   in(ch_local_server_core_server, as_list: as_entry_list); (*Step 9*)
   event local_server_receive_path(as_list);
   out(ch_local_server_core_server, made_trc_request);
@@ -189,7 +191,7 @@ let LocalPathServer(keymat: keymat) =
   let signature = sign(as, skey) in
   let as_entry_new = make_as_entry(as, signature, pkey) in
   let updated_list = enlarge_as_list(as_list, as_entry_new) in
-  
+  event signature_done_local_path_server(pkey);
   out(ch_source_local_server, updated_list);
   event send_segments(ch_source_local_server, updated_list);
 
