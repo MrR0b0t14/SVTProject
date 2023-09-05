@@ -94,7 +94,7 @@ event signature_done_local_path_server(public_key).
 event signature_verification_successful_end_local(public_key).
 
 (*Query definition*)
-query k: keymat; event(signature_verification_successful_end_local(gen_public_key(k))) ==> event(signature_done_local_path_server(gen_public_key(k))) || attacker(gen_private_key(k)).
+query k: keymat; event(signature_verification_successful_end_local(gen_public_key(k))) ==> event(signature_done_local_path_server(gen_public_key(k))).
 (*Verified( pk(key)) -> Done(  pk(key)) || attacker( key) *)
 
 let AS_signature_finishing() =
