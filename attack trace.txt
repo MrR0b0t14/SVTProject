@@ -1,0 +1,213 @@
+{1}new trc: trust_root_configuration;
+(
+    {2}new k: keymat;
+    {4}new destination: ISD_AS;
+    {5}new trc_request: trust_root_configuration_request;
+    {6}event send_request(ch_source_local_server,destination);
+    {7}out(ch_source_local_server, destination);
+    {8}in(ch_source_local_server, as_list: as_entry_list);
+    {9}event end_host_received_paths(as_list);
+    {11}let AS_destination: as_entry = get_head(as_list) in
+    {12}let signatures_to_verify1: as_entry_list = pop(as_list) in
+    {13}let core_remote_as: as_entry = get_head(signatures_to_verify1) in
+    {14}let signatures_to_verify2: as_entry_list = pop(signatures_to_verify1) in
+    {15}let core_local_as: as_entry = get_head(signatures_to_verify2) in
+    {16}let signatures_to_verify3: as_entry_list = pop(signatures_to_verify2) in
+    {17}let local_as: as_entry = get_head(signatures_to_verify3) in
+    {18}let dest_as_identifier: AS = get_as_from_entry(AS_destination) in
+    {19}let dest_signature: bitstring = get_signature(AS_destination) in
+    {20}let dest_pkey: public_key = get_public_key(AS_destination) in
+    {21}let core_remote_as_identifier: AS = get_as_from_entry(core_remote_as) in
+    {22}let core_remote_signature: bitstring = get_signature(core_remote_as) in
+    {23}let core_remote_pkey: public_key = get_public_key(core_remote_as) in
+    {24}let core_local_as_identifier: AS = get_as_from_entry(core_local_as) in
+    {25}let core_local_signature: bitstring = get_signature(core_local_as) in
+    {26}let core_local_pkey: public_key = get_public_key(core_local_as) in
+    {27}let local_as_identifier: AS = get_as_from_entry(local_as) in
+    {28}let local_signature: bitstring = get_signature(local_as) in
+    {29}let local_pkey: public_key = get_public_key(local_as) in
+    {30}if (checksign(local_signature,local_pkey) = ok) then
+        {31}event signature_verification_successful_end_local(local_pkey)
+    else
+        {32}event signature_verification_failed(local_as_identifier);
+        {33}if (checksign(core_local_signature,core_local_pkey) = ok) then
+            {34}event signature_verification_ok(core_local_as_identifier)
+        else
+            {35}event signature_verification_failed(core_local_as_identifier);
+            {36}if (checksign(core_remote_signature,core_remote_pkey) = ok) then
+                {37}event signature_verification_ok(core_remote_as_identifier)
+            else
+                {38}event signature_verification_failed(core_remote_as_identifier);
+                {39}if (checksign(dest_signature,dest_pkey) = ok) then
+                    {40}event signature_verification_ok(dest_as_identifier)
+                else
+                    {41}event signature_verification_failed(dest_as_identifier);
+                    {10}let trc_request_1: trust_root_configuration_request = trc_request in
+                    {42}out(ch_source_local_server, trc_request_1);
+                    {43}in(ch_source_local_server, trc_1: trust_root_configuration);
+                    {44}event verify_trust_root_configuration(trc_1)
+) | (
+    {45}new k_1: keymat;
+    {47}new as: AS;
+    {48}new made_trc_request: trust_root_configuration_request;
+    {49}in(ch_source_local_server, isd_as: ISD_AS);
+    {50}out(ch_local_server_core_server, isd_as);
+    {51}event send_request(ch_local_server_core_server,isd_as);
+    {52}in(ch_local_server_core_server, as_list_1: as_entry_list);
+    {53}event local_server_receive_path(as_list_1);
+    {54}out(ch_local_server_core_server, made_trc_request);
+    {55}in(ch_local_server_core_server, trc_2: trust_root_configuration);
+    {56}event verify_trust_root_configuration(trc_2);
+    {46}let keymat_2: keymat = k_1 in
+    {58}let pkey: public_key = gen_public_key(keymat_2) in
+    {62}event signature_done_local_path_server(pkey);
+    {57}let skey: private_key = gen_private_key(keymat_2) in
+    {59}let signature: bitstring = sign(as,skey) in
+    {60}let as_entry_new: as_entry = make_as_entry(as,signature,pkey) in
+    {61}let updated_list: as_entry_list = enlarge_as_list(as_list_1,as_entry_new) in
+    {63}out(ch_source_local_server, updated_list);
+    {64}event send_segments(ch_source_local_server,updated_list);
+    {65}in(ch_source_local_server, trc_request_2: trust_root_configuration_request);
+    {66}out(ch_source_local_server, trc_2)
+) | (
+    {67}new k_2: keymat;
+    {69}new as_1: AS;
+    {70}new made_trc_request_1: trust_root_configuration_request;
+    {71}in(ch_local_server_core_server, isd_as_1: ISD_AS);
+    {72}out(ch_core_server_core_remote_server, isd_as_1);
+    {73}event send_request(ch_core_server_core_remote_server,isd_as_1);
+    {74}in(ch_core_server_core_remote_server, as_list_2: as_entry_list);
+    {75}event core_server_receive_path(as_list_2);
+    {76}out(ch_core_server_core_remote_server, made_trc_request_1);
+    {77}in(ch_core_server_core_remote_server, trc_3: trust_root_configuration);
+    {78}event verify_trust_root_configuration(trc_3);
+    {68}let keymat_3: keymat = k_2 in
+    {79}let skey_1: private_key = gen_private_key(keymat_3) in
+    {81}let signature_1: bitstring = sign(as_1,skey_1) in
+    {80}let pkey_1: public_key = gen_public_key(keymat_3) in
+    {82}let as_entry_new_1: as_entry = make_as_entry(as_1,signature_1,pkey_1) in
+    {83}let updated_list_1: as_entry_list = enlarge_as_list(as_list_2,as_entry_new_1) in
+    {84}out(ch_local_server_core_server, updated_list_1);
+    {85}event send_segments(ch_local_server_core_server,updated_list_1);
+    {86}in(ch_local_server_core_server, trc_request_3: trust_root_configuration_request);
+    {87}out(ch_local_server_core_server, trc_3)
+) | (
+    {88}new k_3: keymat;
+    {91}new as_2: AS;
+    {92}new as_list_3: as_entry_list;
+    {93}in(ch_core_server_core_remote_server, isd_as_2: ISD_AS);
+    {94}in(ch_AS_core_server, single_signature: as_entry);
+    {95}event remote_core_server_receive_path(single_signature);
+    {89}let keymat_4: keymat = k_3 in
+    {96}let skey_2: private_key = gen_private_key(keymat_4) in
+    {98}let signature_2: bitstring = sign(as_2,skey_2) in
+    {97}let pkey_2: public_key = gen_public_key(keymat_4) in
+    {99}let as_entry_new_2: as_entry = make_as_entry(as_2,signature_2,pkey_2) in
+    {100}let updated_list_2: as_entry_list = enlarge_as_list(as_list_3,as_entry_new_2) in
+    {101}out(ch_core_server_core_remote_server, updated_list_2);
+    {102}event send_segments(ch_core_server_core_remote_server,updated_list_2);
+    {103}in(ch_core_server_core_remote_server, trc_request_4: trust_root_configuration_request);
+    {90}let trc_4: trust_root_configuration = trc in
+    {104}out(ch_core_server_core_remote_server, trc_4)
+) | (
+    {105}new k_4: keymat;
+    {106}new as_identifier: AS;
+    {107}let skey_3: private_key = gen_private_key(k_4) in
+    {109}let signature_3: bitstring = sign(as_identifier,skey_3) in
+    {108}let pkey_3: public_key = gen_public_key(k_4) in
+    {110}let single_signature_1: as_entry = make_as_entry(as_identifier,signature_3,pkey_3) in
+    {111}out(ch_AS_core_server, single_signature_1)
+)
+
+Unified isd_as_4 with isd_as_3
+Unified trc_6 with trc_7
+Unified isd_as_5 with isd_as_3
+Unified trc_5 with trc_7
+Iterating unifyDerivation.
+Fixpoint reached: nothing more to unify.
+The clause after unifyDerivation is
+end(signature_verification_successful_end_local(gen_public_key(k_3[])))
+This clause still contradicts the query.
+Could not find a trace corresponding to this derivation.
+goal reachable: end(signature_verification_successful_end_local(gen_public_key(k_2[])))
+
+Derivation:
+
+1. The attacker has some term isd_as_3.
+attacker(isd_as_3).
+
+2. The attacker has some term isd_as_4.
+attacker(isd_as_4).
+
+3. The attacker has some term isd_as_5.
+attacker(isd_as_5).
+
+4. The attacker has some term isd_as_6.
+attacker(isd_as_6).
+
+5. The attacker has some term l.
+attacker(l).
+
+6. The attacker has some term trc_5.
+attacker(trc_5).
+
+7. The message isd_as_6 that the attacker may have by 4 may be received at input {71}.
+The message l that the attacker may have by 5 may be received at input {74}.
+The message trc_5 that the attacker may have by 6 may be received at input {77}.
+So the message enlarge_as_list(l,make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))) may be sent to the attacker at output {84}.
+attacker(enlarge_as_list(l,make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[])))).
+
+8. The attacker has some term trc_6.
+attacker(trc_6).
+
+9. The message isd_as_5 that the attacker may have by 3 may be received at input {71}.
+The message enlarge_as_list(l,make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))) that the attacker may have by 7 may be received at input {74}.
+The message trc_6 that the attacker may have by 8 may be received at input {77}.
+So the message enlarge_as_list(enlarge_as_list(l,make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))) may be sent to the attacker at output {84}.
+attacker(enlarge_as_list(enlarge_as_list(l,make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[])))).
+
+10. The attacker has some term trc_7.
+attacker(trc_7).
+
+11. The message isd_as_4 that the attacker may have by 2 may be received at input {71}.
+The message enlarge_as_list(enlarge_as_list(l,make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))) that the attacker may have by 9 may be received at input {74}.
+The message trc_7 that the attacker may have by 10 may be received at input {77}.
+So the message enlarge_as_list(enlarge_as_list(enlarge_as_list(l,make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))) may be sent to the attacker at output {84}.
+attacker(enlarge_as_list(enlarge_as_list(enlarge_as_list(l,make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[])))).
+
+12. The attacker has some term trc_8.
+attacker(trc_8).
+
+13. The message isd_as_3 that the attacker may have by 1 may be received at input {71}.
+The message enlarge_as_list(enlarge_as_list(enlarge_as_list(l,make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))) that the attacker may have by 11 may be received at input {74}.
+The message trc_8 that the attacker may have by 12 may be received at input {77}.
+So the message enlarge_as_list(enlarge_as_list(enlarge_as_list(enlarge_as_list(l,make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))) may be sent to the attacker at output {84}.
+attacker(enlarge_as_list(enlarge_as_list(enlarge_as_list(enlarge_as_list(l,make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[])))).
+
+14. The message enlarge_as_list(enlarge_as_list(enlarge_as_list(enlarge_as_list(l,make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))) that the attacker may have by 13 may be received at input {8}.
+So event signature_verification_successful_end_local(gen_public_key(k_2[])) may be executed at {31}.
+end(signature_verification_successful_end_local(gen_public_key(k_2[]))).
+
+15. By 14, end(signature_verification_successful_end_local(gen_public_key(k_2[]))).
+The goal is reached, represented in the following fact:
+end(signature_verification_successful_end_local(gen_public_key(k_2[]))).
+
+
+Unified isd_as_4 with isd_as_3
+Unified trc_7 with trc_8
+Unified isd_as_5 with isd_as_3
+Unified trc_6 with trc_8
+Unified isd_as_6 with isd_as_3
+Unified trc_5 with trc_8
+Trying unification l,l,l,l,l,l with enlarge_as_list(enlarge_as_list(enlarge_as_list(l,make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),enlarge_as_list(enlarge_as_list(enlarge_as_list(l,make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),enlarge_as_list(enlarge_as_list(l,make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),enlarge_as_list(enlarge_as_list(l,make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),enlarge_as_list(l,make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))),enlarge_as_list(l,make_as_entry(as_1[],sign(as_1[],gen_private_key(k_2[])),gen_public_key(k_2[]))) failed.
+The clause after unifyDerivation is
+end(signature_verification_successful_end_local(gen_public_key(k_2[])))
+This clause still contradicts the query.
+Could not find a trace corresponding to this derivation.
+Stopping attack reconstruction attempts. To try more traces, modify the setting reconstructTrace.
+RESULT event(signature_verification_successful_end_local(gen_public_key(k_5))) ==> event(signature_done_local_path_server(gen_public_key(k_5))) cannot be proved.
+
+--------------------------------------------------------------
+Verification summary:
+
+Query event(signature_verification_successful_end_local(gen_public_key(k_5))) ==> event(signature_done_local_path_server(gen_public_key(k_5))) cannot be proved.
