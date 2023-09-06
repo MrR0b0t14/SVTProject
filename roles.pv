@@ -58,10 +58,10 @@ clauses
 
 
 (*Channels available*)
-free ch_source_local_server: channel [private]. (* Private channel between the source EH and Local Path Server, established with TLS*)
-free ch_local_server_core_server: channel [private]. (* Private channel between the Local Path Server and Core Server, established with TLS*)
+free ch_source_local_server: channel. (* Private channel between the source EH and Local Path Server, established with TLS*)
+free ch_local_server_core_server: channel . (* Private channel between the Local Path Server and Core Server, established with TLS*)
 free ch_core_server_core_remote_server: channel . (* Private channel between the Core Server and Core Remote Server, in the destination ISD. Established with TLS*)
-free ch_AS_core_server: channel [private]. (* Private channel between AS and Remote Core Server, established with TLS.*)
+free ch_AS_core_server: channel. (* Private channel between AS and Remote Core Server, established with TLS.*)
 
 (* Cryptographic Primitives *)
 fun gen_public_key(keymat): public_key.
