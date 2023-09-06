@@ -93,7 +93,6 @@ event signature_verification_successful_end_local(public_key).
 (*query k: keymat; event(signature_verification_successful_end_local(gen_public_key(k))) ==> event(signature_done_local_path_server(gen_public_key(k))).
 *)
 query as: as_entry; event(remote_core_server_receive_path(as)).
-(*
 query isd_as: ISD_AS; event(send_request(ch_source_local_server, isd_as)). (*Expected to be true*)
 query isd_as: ISD_AS; event(send_request(ch_local_server_core_server, isd_as)). (*Expected to be true*)
 query isd_as: ISD_AS; event(send_request(ch_core_server_core_remote_server, isd_as)). (*Expected to be true*)
@@ -104,7 +103,7 @@ query trc: trust_root_configuration; event(verify_trust_root_configuration(trc))
 query as: AS; event(signature_verification_failed(as)).
 query as: AS; event(signature_verification_ok(as)).)
 query isd_as: ISD_AS; event(send_request(ch_local_server_core_server, isd_as)) ==> event(send_request(ch_source_local_server, isd_as)) . (*Expected to be true*)
-*)
+
 
 (*Rules*)
 (*EH sends a request to the Local Path Server*)
