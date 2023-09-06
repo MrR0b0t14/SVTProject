@@ -96,7 +96,6 @@ query isd_as: ISD_AS; event(send_request(ch_source_local_server, isd_as)). (*Exp
 query isd_as: ISD_AS; event(send_request(ch_local_server_core_server, isd_as)). (*Expected to be true*)
 query isd_as: ISD_AS; event(send_request(ch_core_server_core_remote_server, isd_as)). (*Expected to be true*)
 query isd_as: ISD_AS; event(send_request(ch_local_server_core_server, isd_as)) ==> event(send_request(ch_source_local_server, isd_as)) . (*Expected to be true*)
-(*query ch: channel, as_list: as_entry_list; event(send_segments(ch, as_list)).
 query as_list: as_entry_list; event(end_host_received_paths(as_list)).
 query as_list: as_entry_list; event(local_server_receive_path(as_list)).
 query as_list: as_entry_list; event(core_server_receive_path(as_list)).
@@ -104,7 +103,6 @@ query as: as_entry; event(remote_core_server_receive_path(as)).
 query trc: trust_root_configuration; event(verify_trust_root_configuration(trc)).
 query as: AS; event(signature_verification_failed(as)).
 query as: AS; event(signature_verification_ok(as)).
-*)
 
 (*Rules*)
 (*EH sends a request to the Local Path Server*)
