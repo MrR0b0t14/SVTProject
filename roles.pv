@@ -59,9 +59,9 @@ clauses
 
 (*Channels available*)
 free ch_source_local_server: channel [private]. (* Private channel between the source EH and Local Path Server, established with TLS*)
-free ch_local_server_core_server: channel . (* Private channel between the Local Path Server and Core Server, established with TLS*)
-free ch_core_server_core_remote_server: channel . (* Private channel between the Core Server and Core Remote Server, in the destination ISD. Established with TLS*)
-free ch_AS_core_server: channel . (* Private channel between AS and Remote Core Server, established with TLS.*)
+free ch_local_server_core_server: channel [private]. (* Private channel between the Local Path Server and Core Server, established with TLS*)
+free ch_core_server_core_remote_server: channel [private]. (* Private channel between the Core Server and Core Remote Server, in the destination ISD. Established with TLS*)
+free ch_AS_core_server: channel [private]. (* Private channel between AS and Remote Core Server, established with TLS.*)
 
 (* Cryptographic Primitives *)
 fun gen_public_key(keymat): public_key.
@@ -127,13 +127,13 @@ let AS_signature_finishing() =
   .
 
 let AS_signature_verification(signatures_to_verify: as_entry_list, trc_request: trust_root_configuration_request) =
-  let AS_destination = get_head(signatures_to_verify) in
+  let local_as = get_head(signatures_to_verify) in
   let signatures_to_verify1 = pop(signatures_to_verify) in
-  let core_remote_as = get_head(signatures_to_verify1) in
+  let core_local_as = get_head(signatures_to_verify1) in
   let signatures_to_verify2 = pop(signatures_to_verify1) in
-  let core_local_as = get_head(signatures_to_verify2) in
+  let core_remote_as = get_head(signatures_to_verify2) in
   let signatures_to_verify3 = pop(signatures_to_verify2) in
-  let local_as = get_head(signatures_to_verify3) in
+  let AS_destination = get_head(signatures_to_verify3) in
 
   (*Extraction from destination entry*)
   let dest_as_identifier = get_as_from_entry(AS_destination) in
