@@ -138,9 +138,9 @@ query as: AS; event(signature_verification_failed(as)).*)
 let AS_signature_finishing() =
   new k:keymat;
     in(ch_AS_core_server, isd_as: ISD_AS);
-    event signature_done_by_AS();
     event destination_received_request();
     let as_identifier = get_as(isd_as) in
+    event signature_done_by_AS();
     let skey = gen_private_key(k) in 
     let pkey = gen_public_key(k) in
     let signature = sign(as_identifier, skey) in
