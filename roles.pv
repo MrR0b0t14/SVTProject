@@ -143,8 +143,8 @@ let AS_signature_finishing() =
     let skey = gen_private_key(k) in 
     let pkey = gen_public_key(k) in
     let signature = sign(as_identifier, skey) in
-    let single_signature = make_as_entry(as_identifier, signature, pkey) in
     event signature_done_by_AS();
+    let single_signature = make_as_entry(as_identifier, signature, pkey) in
     out(ch_AS_core_server, single_signature) (*It sends to the Remote Core AS the segment signed by the single AS*)
   .
 
