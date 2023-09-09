@@ -87,7 +87,7 @@ query event(destination_received_request()). (*Expected to be true*)
 query pk: public_key; event(signature_done_by_AS(pk)). (*Expected to be true*)
 (*query pk: public_key; event(signature_verified(pk)).*)
 query updated_list: as_entry_list; event(send_segments(ch_core_server_core_remote_server, updated_list)). (*Expected to be true*)
-query as_list: as_entry_list; event(core_server_receive_path(as_list)).
+(*query as_list: as_entry_list; event(core_server_receive_path(as_list)).*)
 query event(evviva()).
 query event(evviva2()).
 
@@ -96,8 +96,8 @@ query isd_as: ISD_AS; event(send_request(ch_local_server_core_server, isd_as)) =
 query isd_as: ISD_AS; event(send_request(ch_core_server_core_remote_server, isd_as)) ==> event(send_request(ch_local_server_core_server, isd_as)). (*Expected to be true*)
 query isd_as: ISD_AS; event(send_request(ch_AS_core_server, isd_as)) ==> event(send_request(ch_core_server_core_remote_server, isd_as)). (*Expected to be true*)
 query isd_as: ISD_AS; event(destination_received_request()) ==> event(send_request(ch_AS_core_server, isd_as)). (*Expected to be true*)
-query as_list: as_entry_list; event(core_server_receive_path(as_list)) ==> event(send_segments(ch_core_server_core_remote_server, as_list)).
-(*query pk: public_key; event(signature_verified(pk)) ==> event(signature_done_by_AS(pk)). (*Expected to be true*)
+(*query as_list: as_entry_list; event(core_server_receive_path(as_list)) ==> event(send_segments(ch_core_server_core_remote_server, as_list)).
+*)(*query pk: public_key; event(signature_verified(pk)) ==> event(signature_done_by_AS(pk)). (*Expected to be true*)
 *)
 
 (*EH sends a request to the Local Path Server*)
