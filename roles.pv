@@ -252,7 +252,7 @@ let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
   let as_entry2 = make_as_entry(as, signature, pkey) in
   let updated_list = add_second(single_signature, as_entry2) in
   
-  event send_segments(ch_core_server_core_remote_server, updated_list);
+  event send_segments(ch_core_server_core_remote_server, updated_list)
  (*
   let entry_first = get_first(updated_list) in
   let entry_second = get_second(updated_list) in
