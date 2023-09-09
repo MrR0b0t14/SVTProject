@@ -109,7 +109,7 @@ query isd_as: ISD_AS; event(destination_received_request()) ==> event(send_reque
 
 let AS_signature_finishing() =
   new k:keymat;
-    in(ch_AS_core_server, isd_as: ISD_AS);
+    in(ch_remote_core_server_AS, isd_as: ISD_AS);
     event destination_received_request();
     let as_identifier = get_as(isd_as) in
     let skey = gen_private_key(k) in 
