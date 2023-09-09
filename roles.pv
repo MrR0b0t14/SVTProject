@@ -138,12 +138,12 @@ query as: AS; event(signature_verification_failed(as)).*)
 let AS_signature_finishing() =
   new k:keymat;
     in(ch_AS_core_server, isd_as: ISD_AS);
+    event signature_done_by_AS();
     event destination_received_request();
     let as_identifier = get_as(isd_as) in
     let skey = gen_private_key(k) in 
     let pkey = gen_public_key(k) in
     let signature = sign(as_identifier, skey) in
-    event signature_done_by_AS();
     let single_signature = make_as_entry(as_identifier, signature, pkey) in
     out(ch_AS_core_server, single_signature) (*It sends to the Remote Core AS the segment signed by the single AS*)
   .
