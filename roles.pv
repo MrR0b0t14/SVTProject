@@ -86,7 +86,7 @@ event verify_trust_root_configuration(trust_root_configuration).
 event signature_verification_failed(AS).
 event send_segments(channel, as_entry_list).
 event signature_done_local_path_server(public_key).
-event signature_done_by_AS(public_key).
+event signature_done_by_AS().
 event signature_verification_successful_end_local(public_key).
 event signature_verification_successful_end_core(public_key).
 event signature_verification_successful_end_remote_core(public_key).
@@ -103,7 +103,7 @@ query isd_as: ISD_AS; event(send_request(ch_local_server_core_server, isd_as)). 
 query isd_as: ISD_AS; event(send_request(ch_core_server_core_remote_server, isd_as)). (*Expected to be true*)
 query isd_as: ISD_AS; event(send_request(ch_AS_core_server, isd_as)). (*Expected to be true*)
 query event(destination_received_request()). (*Expected to be true*)
-query k: keymat; event(signature_done_by_AS(gen_public_key(k))). (*Expected to be true*)
+query k: keymat; event(signature_done_by_AS()). (*Expected to be true*)
 query pk: public_key; event(signature_verified(pk)).
 
 (*Event Correspondence, sanity checks for the workflow of the protocol*)
@@ -144,7 +144,7 @@ let AS_signature_finishing() =
     let pkey = gen_public_key(k) in
     let signature = sign(as_identifier, skey) in
     let single_signature = make_as_entry(as_identifier, signature, pkey) in
-    event signature_done_by_AS(pkey);
+    event signature_done_by_AS();
     out(ch_AS_core_server, single_signature) (*It sends to the Remote Core AS the segment signed by the single AS*)
   .
 
