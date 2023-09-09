@@ -213,7 +213,7 @@ let CoreServer(keymat: keymat) =
 
   in(ch_local_server_core_server, isd_as: ISD_AS); (*Step 3*)
   event send_request(ch_core_server_core_remote_server, isd_as);
-  out(ch_core_server_core_remote_server, isd_as)
+  out(ch_core_server_core_remote_server, isd_as);
   in(ch_core_server_core_remote_server, as_list: as_entry_list); (*Step 6*)
   event core_server_receive_path(as_list)
 (*
