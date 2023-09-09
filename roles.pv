@@ -206,7 +206,7 @@ let AS_signature_verification(signatures_to_verify: as_entry_list, trc_request: 
 let EndHost(keymat: keymat) =
   new isd: ISD; (*ISD*) 
   new as: AS; (*AS*)
-  let isd_as = make_isd_as(isd, as) in
+  let isd_as = make_ISD_AS(isd, as) in
   new trc_request: trust_root_configuration_request;
   event send_request(ch_source_local_server, destination);
   out(ch_source_local_server, destination) (*Step 1*)
