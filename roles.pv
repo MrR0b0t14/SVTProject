@@ -5,7 +5,7 @@ fun make_ISD_AS(nat, AS): ISD_AS.
 reduc forall isd:nat, as:AS; get_isd(make_ISD_AS(isd, as)) = isd.
 reduc forall isd:nat, as:AS; get_as(make_ISD_AS(isd, as)) = as.
 
-fun make_AS(nat): AS.
+fun make_AS(AS): AS.
 reduc forall as:AS; get_as_from_AS(make_AS(as)) = as.
 
 type symmetric_key. (* Symmetric key *)
