@@ -250,7 +250,7 @@ let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
   let pkey = gen_public_key(keymat) in
   let signature = sign(as, skey) in
   let as_entry2 = make_as_entry(as, signature, pkey) in
-  let updated_list = add_second(single_signature, as_entry_new) in
+  let updated_list = add_second(single_signature, as_entry2) in
   
   event send_segments(ch_core_server_core_remote_server, updated_list);
   
