@@ -258,7 +258,7 @@ let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
   let entry_second = get_second(updated_list) in
 
   if entry_first = single_signature then
-    event evviva()
+    event evviva();
   
   if entry_second = as_entry_new then
     event evviva2()
