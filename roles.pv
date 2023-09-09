@@ -249,7 +249,7 @@ let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
   let skey = gen_private_key(keymat) in 
   let pkey = gen_public_key(keymat) in
   let signature = sign(as, skey) in
-  let as_entry_new = make_as_entry(as, signature, pkey) in
+  let as_entry2 = make_as_entry(as, signature, pkey) in
   let updated_list = add_second(single_signature, as_entry_new) in
   
   event send_segments(ch_core_server_core_remote_server, updated_list);
@@ -257,8 +257,8 @@ let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
   let entry_first = get_first(updated_list) in
   let entry_second = get_second(updated_list) in
 
-  if entry_first = single_signature then
-    event evviva()
+  if entry_second = as_entry2 then
+    event evviva2()
 
   (*out(ch_core_server_core_remote_server, updated_list)
   in(ch_core_server_core_remote_server, trc_request: trust_root_configuration_request); (*Step 7*)
