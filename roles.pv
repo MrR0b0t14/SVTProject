@@ -105,7 +105,7 @@ query event(destination_received_request()). (*Expected to be true*)
 query isd_as: ISD_AS; event(send_request(ch_local_server_core_server, isd_as)) ==> event(send_request(ch_source_local_server, isd_as)). (*Expected to be true*)
 query isd_as: ISD_AS; event(send_request(ch_core_server_core_remote_server, isd_as)) ==> event(send_request(ch_local_server_core_server, isd_as)). (*Expected to be true*)
 query isd_as: ISD_AS; event(send_request(ch_AS_core_server, isd_as)) ==> event(send_request(ch_core_server_core_remote_server, isd_as)). (*Expected to be true*)
-query isd_As: ISD_AS; event(destination_received_request()) ==> event(send_request(ch_AS_core_server, isd_as)). (*Expected to be true*)
+query isd_as: ISD_AS; event(destination_received_request()) ==> event(send_request(ch_AS_core_server, isd_as)). (*Expected to be true*)
 
 (*
 query as: as_entry; event(remote_core_server_receive_path(as)).
