@@ -106,7 +106,7 @@ query isd_as: ISD_AS; event(send_request(ch_AS_core_server, isd_as)). (*Expected
 query event(destination_received_request()). (*Expected to be true*)
 query pk: public_key; event(signature_done_by_AS(pk)). (*Expected to be true*)
 (*query pk: public_key; event(signature_verified(pk)).*)
-query updated_list: as_entry_list; event(send_segments(ch_core_server_core_remote_server, updated_list)). (*Expected to be true*)
+query updated_list: bitstring; event(send_list_remote_to_core(ch_core_server_core_remote_server, updated_list)). (*Expected to be true*)
 query as_list: as_entry_list; event(core_server_receive_path(as_list)).
 
 (*Event Correspondence, sanity checks for the workflow of the protocol*)
