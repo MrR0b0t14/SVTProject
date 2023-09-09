@@ -40,7 +40,11 @@ reduc forall l:as_entry_list, e:as_entry; get_fourth(add_fourth(l, e)) = e.
 free ch_source_local_server: channel [private]. (* Private channel between the source EH and Local Path Server, established with TLS*)
 free ch_local_server_core_server: channel [private]. (* Private channel between the Local Path Server and Core Server, established with TLS*)
 free ch_core_server_core_remote_server: channel [private]. (* Private channel between the Core Server and Core Remote Server, in the destination ISD. Established with TLS*)
-free ch_AS_core_server: channel [private]. (* Private channel between AS and Remote Core Server, established with TLS.*)
+free ch_remote_core_server_AS: channel [private]. (* Private channel between AS and Remote Core Server, established with TLS.*)
+free ch_AS_remote_core_server: channel [private]. (* Private channel between Remote Core Server and AS, established with TLS.*)
+free ch_remote_core_server_core_server: channel [private]. (* Private channel between Remote Core Server and Core Server, established with TLS.*)
+free ch_core_server_local_server: channel [private]. (* Private channel between Core Server and Local Path Server, established with TLS.*)
+free ch_local_server_source: channel [private]. (* Private channel between Local Path Server and Source EH, established with TLS.*)
 
 (* Cryptographic Primitives *)
 fun gen_public_key(keymat): public_key.
@@ -95,7 +99,7 @@ query event(evviva2()).
 query isd_as: ISD_AS; event(send_request(ch_local_server_core_server, isd_as)) ==> event(send_request(ch_source_local_server, isd_as)). (*Expected to be true*)
 query isd_as: ISD_AS; event(send_request(ch_core_server_core_remote_server, isd_as)) ==> event(send_request(ch_local_server_core_server, isd_as)). (*Expected to be true*)
 query isd_as: ISD_AS; event(send_request(ch_AS_core_server, isd_as)) ==> event(send_request(ch_core_server_core_remote_server, isd_as)). (*Expected to be true*)
-query isd_as: ISD_AS; event(destination_received_request()) ==> event(send_request(ch_AS_core_server, isd_as)). (*Expected to be true*)
+query isd_as: ISD_AS; event(destination_received_request()) ==> event(send_request(ch_remote_core_server_AS, isd_as)). (*Expected to be true*)
 (*query as_list: as_entry_list; event(core_server_receive_path(as_list)) ==> event(send_segments(ch_core_server_core_remote_server, as_list)).
 *)(*query pk: public_key; event(signature_verified(pk)) ==> event(signature_done_by_AS(pk)). (*Expected to be true*)
 *)
@@ -239,9 +243,9 @@ let CoreServer(keymat: keymat) =
 let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
   new as: AS;
   in(ch_core_server_core_remote_server, isd_as: ISD_AS);               (*Step 4*)
-  event send_request(ch_AS_core_server, isd_as);
-  out(ch_AS_core_server, isd_as);
-  in(ch_AS_core_server, single_signature: as_entry);   (*Step 5*)
+  event send_request(ch_remote_core_server_AS, isd_as);
+  out(ch_remote_core_server_AS, isd_as);
+  in(ch_AS_remote_core_server, single_signature: as_entry);   (*Step 5*)
 (*  if checksign(get_signature(single_signature), get_public_key(single_signature)) then
     event signature_verified(get_public_key(single_signature))
 *)
@@ -253,12 +257,12 @@ let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
   let updated_list = add_second(single_signature, as_entry2) in
   
   event send_segments(ch_core_server_core_remote_server, updated_list)
- (*
+
   let entry_first = get_first(updated_list) in
   let entry_second = get_second(updated_list) in
 
   if entry_second = as_entry2 then
-    event evviva2()*)
+    event evviva2()
 
   (*out(ch_core_server_core_remote_server, updated_list)
   in(ch_core_server_core_remote_server, trc_request: trust_root_configuration_request); (*Step 7*)
