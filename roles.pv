@@ -79,6 +79,9 @@ event signature_verified(public_key).
 event verify_trust_root_configuration_from_remote(trust_root_configuration).
 event verify_trust_root_configuration_from_core(trust_root_configuration).
 event verify_trust_root_configuration_from_local(trust_root_configuration).
+event remote_send_trc(trc).
+event core_send_trc(trc).
+event local_send_trc(trc).
 
 (*Query definition*)
 (*query k: keymat; event(signature_verification_successful_end_local(gen_public_key(k))) ==> event(signature_done_local_path_server(gen_public_key(k))).
