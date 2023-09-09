@@ -76,6 +76,9 @@ event signature_verification_successful_end_remote_core(public_key).
 event signature_verification_successful_end_dest(public_key).
 event destination_received_request().
 event signature_verified(public_key).
+event verify_trust_root_configuration_from_remote(trust_root_configuration).
+event verify_trust_root_configuration_from_core(trust_root_configuration).
+event verify_trust_root_configuration_from_local(trust_root_configuration).
 
 (*Query definition*)
 (*query k: keymat; event(signature_verification_successful_end_local(gen_public_key(k))) ==> event(signature_done_local_path_server(gen_public_key(k))).
@@ -90,7 +93,12 @@ query pk: public_key; event(signature_done_by_AS(pk)). (*Expected to be true*)
 (*query pk: public_key; event(signature_verified(pk)).*)
 query updated_list: as_entry_list; event(send_segments(ch_core_server_core_remote_server, updated_list)). (*Expected to be true*)
 query as_list: as_entry_list; event(core_server_receive_path(as_list)).
-
+query trc: trust_root_configuration; event(remote_send_trc(trc)).
+query trc: trust_root_configuration; event(verify_trust_root_configuration_from_remote(trc)).
+query trc: trust_root_configuration; event(core_send_trc(trc)).
+query trc: trust_root_configuration; event(verify_trust_root_configuration_from_core(trc)).
+query trc: trust_root_configuration; event(local_send_trc(trc)).
+query trc: trust_root_configuration; event(verify_trust_root_configuration_from_local(trc)).
 
 (*Event Correspondence, sanity checks for the workflow of the protocol*)
 query isd_as: ISD_AS; event(send_request(ch_local_server_core_server, isd_as)) ==> event(send_request(ch_source_local_server, isd_as)). (*Expected to be true*)
@@ -98,6 +106,11 @@ query isd_as: ISD_AS; event(send_request(ch_core_server_core_remote_server, isd_
 query isd_as: ISD_AS; event(send_request(ch_remote_core_server_AS, isd_as)) ==> event(send_request(ch_core_server_core_remote_server, isd_as)). (*Expected to be true*)
 query isd_as: ISD_AS; event(destination_received_request()) ==> event(send_request(ch_remote_core_server_AS, isd_as)). (*Expected to be true*)
 query as_list: as_entry_list; event(core_server_receive_path(as_list)) ==> event(send_segments(ch_core_server_core_remote_server, as_list)).
+query trc: trust_root_configuration; event(verify_trust_root_configuration_from_remote(trc)) ==> event(remote_send_trc(trc)).
+query trc: trust_root_configuration; event(verify_trust_root_configuration_from_core(trc)) ==> event(core_send_trc(trc)).
+query trc: trust_root_configuration; event(verify_trust_root_configuration_from_local(trc)) ==> event(local_send_trc(trc)).
+
+(*Event Correspondence, sanity checks for the workflow of the protocol*)
 (*query pk: public_key; event(signature_verified(pk)) ==> event(signature_done_by_AS(pk)). (*Expected to be true*)
 *)
 
@@ -218,11 +231,11 @@ let CoreServer(keymat: keymat) =
   out(ch_core_server_core_remote_server, isd_as);
   in(ch_remote_core_server_core_server, as_list: as_entry_list); (*Step 6*)
   event core_server_receive_path(as_list)
-  (*
+
   out(ch_core_server_core_remote_server, made_trc_request);
   in(ch_core_server_core_remote_server, trc: trust_root_configuration); (*Step 8*)
-  event verify_trust_root_configuration(trc);
-
+  event verify_trust_root_configuration_from_remote(trc);
+(*
   (*Adding personal entry and enlarging segments (how to add other segments? Since here I am only adding an as_Entry and not other segments for other servers)*)
   let skey = gen_private_key(keymat) in 
   let pkey = gen_public_key(keymat) in
@@ -256,8 +269,8 @@ let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
   event send_segments(ch_core_server_core_remote_server, updated_list);
 
   out(ch_remote_core_server_core_server, updated_list)
-(*  in(ch_core_server_core_remote_server, trc_request: trust_root_configuration_request); (*Step 7*)
-  out(ch_remote_core_server_core_server, trc)*)
+  in(ch_core_server_core_remote_server, trc_request: trust_root_configuration_request); (*Step 7*)
+  out(ch_remote_core_server_core_server, trc)
   .
 
 process
