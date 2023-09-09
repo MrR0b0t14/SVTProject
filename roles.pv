@@ -26,37 +26,15 @@ reduc forall as:AS, signature:bitstring, key:public_key; get_public_key(make_as_
 
 type as_entry_list. (* List of AS entries*)
 
-const empty_as_list: as_entry_list [data].
-fun enlarge_as_list(as_entry_list, as_entry): as_entry_list.
-reduc forall l:as_entry_list, e:as_entry, e1:as_entry; pop(enlarge_as_list(enlarge_as_list(l, e),e1)) = enlarge_as_list(l, e).
-reduc forall l:as_entry_list, e:as_entry; get_head(enlarge_as_list(l, e)) = e.
+fun add_second(as_entry, as_entry): as_entry_list.
+reduc forall e:as_entry, e1:as_entry; get_first(add_second(e, e1)) = e.
+reduc forall e:as_entry, e1:as_entry; get_second(add_second(e, e1)) = e1.
 
-pred not_contained_element(as_entry, as_entry_list).
-clauses
-  forall e:as_entry, e1:as_entry, l:as_entry_list; not_contained_element(e1, enlarge_as_list(l, e)).
+fun add_third(as_entry_list, as_entry): as_entry_list.
+reduc forall l:as_entry_list, e:as_entry; get_third(add_third(l, e)) = e.
 
-pred contained_element(as_entry, as_entry_list).
-clauses
-  forall l:as_entry_list, e:as_entry; contained_element(e, enlarge_as_list(l, e));
-  forall l:as_entry_list, e:as_entry, e1:as_entry; contained_element(e, l) -> contained_element(e, enlarge_as_list(l, e1));
-  forall l:as_entry_list, e:as_entry, l1:as_entry_list; pop(enlarge_as_list(l, e)) = l1 -> not_contained_element(e, l1).
-
-type segment_list. (* List of segments*)
-const empty_seg_list: segment_list.
-fun enlarge_seg_list(segment_list, as_entry_list): segment_list.
-reduc forall l:segment_list, e:as_entry_list, e1:as_entry_list; pop_segment(enlarge_seg_list(enlarge_seg_list(l, e),e1)) = enlarge_seg_list(l, e).
-reduc forall l:segment_list, e:as_entry_list; get_head_segment(enlarge_seg_list(l, e)) = e.
-
-pred not_contained_segment(as_entry_list, segment_list).
-clauses
-  forall e:as_entry_list, e1:as_entry_list, l:segment_list; not_contained_segment(e1, enlarge_seg_list(l, e)).
-
-pred contained_segment(as_entry_list, segment_list).
-clauses
-  forall l:segment_list, e:as_entry_list; contained_segment(e, enlarge_seg_list(l, e));
-  forall l:segment_list, e:as_entry_list, e1:as_entry_list; contained_segment(e, l) -> contained_segment(e, enlarge_seg_list(l, e1));
-  forall l:segment_list, e:as_entry_list, l1:segment_list; pop_segment(enlarge_seg_list(l, e)) = l1 -> not_contained_segment(e, l1).
-
+fun add_fourth(as_entry_list, as_entry): as_entry_list.
+reduc forall l:as_entry_list, e:as_entry; get_fourth(add_fourth(l, e)) = e.
 
 (*Channels available*)
 free ch_source_local_server: channel [private]. (* Private channel between the source EH and Local Path Server, established with TLS*)
@@ -268,7 +246,7 @@ let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
   let pkey = gen_public_key(keymat) in
   let signature = sign(as, skey) in
   let as_entry_new = make_as_entry(as, signature, pkey) in
-  let updated_list = enlarge_as_list(empty_as_list, as_entry_new) in
+  let updated_list = add_second(single_signature, as_entry_new) in
   
   event send_segments(ch_core_server_core_remote_server, updated_list);
   out(ch_core_server_core_remote_server, updated_list)(*
