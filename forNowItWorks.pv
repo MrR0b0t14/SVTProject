@@ -86,14 +86,11 @@ event verify_trust_root_configuration(trust_root_configuration).
 event signature_verification_failed(AS).
 event send_segments(channel, as_entry_list).
 event signature_done_local_path_server(public_key).
-event signature_done_by_AS(public_key).
 event signature_verification_successful_end_local(public_key).
 event signature_verification_successful_end_core(public_key).
 event signature_verification_successful_end_remote_core(public_key).
 event signature_verification_successful_end_dest(public_key).
 event destination_received_request().
-event signature_verified(public_key).
-
 (*Query definition*)
 (*query k: keymat; event(signature_verification_successful_end_local(gen_public_key(k))) ==> event(signature_done_local_path_server(gen_public_key(k))).
 *)
@@ -103,15 +100,12 @@ query isd_as: ISD_AS; event(send_request(ch_local_server_core_server, isd_as)). 
 query isd_as: ISD_AS; event(send_request(ch_core_server_core_remote_server, isd_as)). (*Expected to be true*)
 query isd_as: ISD_AS; event(send_request(ch_AS_core_server, isd_as)). (*Expected to be true*)
 query event(destination_received_request()). (*Expected to be true*)
-query pk: public_key; event(signature_done_by_AS(pk)). (*Expected to be true*)
-query pk: public_key; event(signature_verified(pk)).
 
 (*Event Correspondence, sanity checks for the workflow of the protocol*)
 query isd_as: ISD_AS; event(send_request(ch_local_server_core_server, isd_as)) ==> event(send_request(ch_source_local_server, isd_as)). (*Expected to be true*)
 query isd_as: ISD_AS; event(send_request(ch_core_server_core_remote_server, isd_as)) ==> event(send_request(ch_local_server_core_server, isd_as)). (*Expected to be true*)
 query isd_as: ISD_AS; event(send_request(ch_AS_core_server, isd_as)) ==> event(send_request(ch_core_server_core_remote_server, isd_as)). (*Expected to be true*)
 query isd_as: ISD_AS; event(destination_received_request()) ==> event(send_request(ch_AS_core_server, isd_as)). (*Expected to be true*)
-query pk: public_key; event(signature_verified(pk)) ==> event(signature_done_by_AS(pk)). (*Expected to be true*)
 
 (*
 query as: as_entry; event(remote_core_server_receive_path(as)).
@@ -138,13 +132,12 @@ query as: AS; event(signature_verification_failed(as)).*)
 let AS_signature_finishing() =
   new k:keymat;
     in(ch_AS_core_server, isd_as: ISD_AS);
-    event destination_received_request();
+    event destination_received_request() (*)
     let as_identifier = get_as_identifier(isd_as) in
     let skey = gen_private_key(k) in 
     let pkey = gen_public_key(k) in
     let signature = sign(as_identifier, skey) in
     let single_signature = make_as_entry(as_identifier, signature, pkey) in
-    event signature_done_by_AS(pkey);
     out(ch_AS_core_server, single_signature) (*It sends to the Remote Core AS the segment signed by the single AS*)*)
   .
 
@@ -270,11 +263,10 @@ let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
   new as_list: as_entry_list;
   in(ch_core_server_core_remote_server, isd_as: ISD_AS);               (*Step 4*)
   event send_request(ch_AS_core_server, isd_as);
-  out(ch_AS_core_server, isd_as)
+  out(ch_AS_core_server, isd_as) (*)
   in(ch_AS_core_server, single_signature: as_entry);   (*Step 5*)
-  if checksign(get_signature(single_signature), get_public_key(single_signature)) = ok() then
-    event signature_verified(get_public_key(single_signature))
-  (*)
+  event remote_core_server_receive_path(single_signature);
+
   (*Adding personal entry and enlarging segments (how to add other segments? Since here I am only adding an as_Entry and not other segments for other servers)*)
   let skey = gen_private_key(keymat) in 
   let pkey = gen_public_key(keymat) in
