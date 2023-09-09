@@ -268,7 +268,7 @@ let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
   
   event send_segments(ch_core_server_core_remote_server, updated_list);
 
-  out(ch_remote_core_server_core_server, updated_list)
+  out(ch_remote_core_server_core_server, updated_list);
   in(ch_core_server_core_remote_server, trc_request: trust_root_configuration_request); (*Step 7*)
   event remote_send_trc(trc);
   out(ch_remote_core_server_core_server, trc)
