@@ -90,7 +90,7 @@ event signature_verification_successful_end_local(public_key).
 event signature_verification_successful_end_core(public_key).
 event signature_verification_successful_end_remote_core(public_key).
 event signature_verification_successful_end_dest(public_key).
-
+event destination_received_request().
 (*Query definition*)
 (*query k: keymat; event(signature_verification_successful_end_local(gen_public_key(k))) ==> event(signature_done_local_path_server(gen_public_key(k))).
 *)
@@ -98,10 +98,15 @@ event signature_verification_successful_end_dest(public_key).
 query isd_as: ISD_AS; event(send_request(ch_source_local_server, isd_as)). (*Expected to be true*)
 query isd_as: ISD_AS; event(send_request(ch_local_server_core_server, isd_as)). (*Expected to be true*)
 query isd_as: ISD_AS; event(send_request(ch_core_server_core_remote_server, isd_as)). (*Expected to be true*)
+query isd_as: ISD_AS; event(send_request(ch_AS_core_server, isd_as)). (*Expected to be true*)
+query event(destination_received_request()). (*Expected to be true*)
 
 (*Event Correspondence, sanity checks for the workflow of the protocol*)
 query isd_as: ISD_AS; event(send_request(ch_local_server_core_server, isd_as)) ==> event(send_request(ch_source_local_server, isd_as)). (*Expected to be true*)
 query isd_as: ISD_AS; event(send_request(ch_core_server_core_remote_server, isd_as)) ==> event(send_request(ch_local_server_core_server, isd_as)). (*Expected to be true*)
+query isd_as: ISD_AS; event(send_request(ch_AS_core_server, isd_as)) ==> event(send_request(ch_core_server_core_remote_server, isd_as)). (*Expected to be true*)
+query isd_As: ISD_AS; event(destination_received_request()) ==> event(send_request(ch_AS_core_server, isd_as)). (*Expected to be true*)
+
 (*
 query as: as_entry; event(remote_core_server_receive_path(as)).
 
@@ -125,12 +130,15 @@ query as: AS; event(signature_verification_failed(as)).*)
 (*Verified( pk(key)) -> Done(  pk(key)) || attacker( key) *)
 
 let AS_signature_finishing() =
-  new k:keymat; new as_identifier:AS;
+  new k:keymat;
+    in(ch_AS_core_server, isd_as: ISD_AS);
+    event destination_received_request() (*)
+    let as_identifier = get_as_identifier(isd_as) in
     let skey = gen_private_key(k) in 
     let pkey = gen_public_key(k) in
     let signature = sign(as_identifier, skey) in
     let single_signature = make_as_entry(as_identifier, signature, pkey) in
-    out(ch_AS_core_server, single_signature) (*It sends to the Remote Core AS the segment signed by the single AS*)
+    out(ch_AS_core_server, single_signature) (*It sends to the Remote Core AS the segment signed by the single AS*)*)
   .
 
 let AS_signature_verification(signatures_to_verify: as_entry_list, trc_request: trust_root_configuration_request) =
@@ -228,8 +236,8 @@ let CoreServer(keymat: keymat) =
   new made_trc_request: trust_root_configuration_request;
 
   in(ch_local_server_core_server, isd_as: ISD_AS); (*Step 3*)
-  event send_request(ch_core_server_core_remote_server, isd_as) (*)
-  out(ch_core_server_core_remote_server, isd_as);
+  event send_request(ch_core_server_core_remote_server, isd_as);
+  out(ch_core_server_core_remote_server, isd_as)(*
   in(ch_core_server_core_remote_server, as_list: as_entry_list); (*Step 6*)
   event core_server_receive_path(as_list);
   out(ch_core_server_core_remote_server, made_trc_request);
@@ -254,6 +262,8 @@ let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
   new as: AS;
   new as_list: as_entry_list;
   in(ch_core_server_core_remote_server, isd_as: ISD_AS);               (*Step 4*)
+  event send_request(ch_AS_core_server, isd_as);
+  out(ch_AS_core_server, isd_as) (*)
   in(ch_AS_core_server, single_signature: as_entry);   (*Step 5*)
   event remote_core_server_receive_path(single_signature);
 
@@ -267,7 +277,7 @@ let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
   out(ch_core_server_core_remote_server, updated_list);
   event send_segments(ch_core_server_core_remote_server, updated_list);
   in(ch_core_server_core_remote_server, trc_request: trust_root_configuration_request); (*Step 7*)
-  out(ch_core_server_core_remote_server, trc)
+  out(ch_core_server_core_remote_server, trc)*)
   .
 
 process
@@ -275,7 +285,7 @@ process
   (
     (new k:keymat; EndHost(k))
     | (new k:keymat; LocalPathServer(k))
-    | (new k:keymat; CoreServer(k)) (*
-    | (new k:keymat; CoreRemoteServer(k, trc)) 
-    | ( AS_signature_finishing())*)
+    | (new k:keymat; CoreServer(k))
+    | (new k:keymat; CoreRemoteServer(k, trc))
+    | ( AS_signature_finishing())
   )
