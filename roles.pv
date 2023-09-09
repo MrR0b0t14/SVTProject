@@ -111,7 +111,7 @@ query isd_as: ISD_AS; event(send_request(ch_local_server_core_server, isd_as)) =
 query isd_as: ISD_AS; event(send_request(ch_core_server_core_remote_server, isd_as)) ==> event(send_request(ch_local_server_core_server, isd_as)). (*Expected to be true*)
 query isd_as: ISD_AS; event(send_request(ch_AS_core_server, isd_as)) ==> event(send_request(ch_core_server_core_remote_server, isd_as)). (*Expected to be true*)
 query isd_as: ISD_AS; event(destination_received_request()) ==> event(send_request(ch_AS_core_server, isd_as)). (*Expected to be true*)
-query pk: public_key; event(signature_verified(pk)) ==> event(signature_done_by_AS(pk)). (*Expected to be true*)
+query pk: public_key; event(signature_verified(pk)) ==> event(signature_done_by_AS()). (*Expected to be true*)
 
 (*
 query as: as_entry; event(remote_core_server_receive_path(as)).
