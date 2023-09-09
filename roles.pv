@@ -111,7 +111,7 @@ let AS_signature_finishing() =
     event signature_done_by_AS(pkey);
     out(ch_AS_core_server, single_signature) (*It sends to the Remote Core AS the segment signed by the single AS*)
   .
-
+(*
 let AS_signature_verification(signatures_to_verify: as_entry_list, trc_request: trust_root_configuration_request) =
   let local_as = get_head(signatures_to_verify) in
   let signatures_to_verify1 = pop(signatures_to_verify) in
@@ -164,7 +164,7 @@ let AS_signature_verification(signatures_to_verify: as_entry_list, trc_request: 
   out(ch_source_local_server, trc_request);
   in(ch_source_local_server, trc: trust_root_configuration); 
   event verify_trust_root_configuration(trc)
-  .
+  .*)
 
 let EndHost(keymat: keymat) =
   new isd: ISD; (*ISD*) 
