@@ -236,7 +236,7 @@ let CoreServer(keymat: keymat) =
   event core_server_receive_path(as_list);
 
   out(ch_core_server_core_remote_server, made_trc_request);
-  in(ch_core_server_core_remote_server, trc: trust_root_configuration); (*Step 8*)
+  in(ch_remote_core_server_AS, trc: trust_root_configuration); (*Step 8*)
   event verify_trust_root_configuration_from_remote(trc)
 (*
   (*Adding personal entry and enlarging segments (how to add other segments? Since here I am only adding an as_Entry and not other segments for other servers)*)
