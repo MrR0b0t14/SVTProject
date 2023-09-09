@@ -219,7 +219,7 @@ let CoreServer(keymat: keymat) =
   
   out(ch_core_server_core_remote_server, made_trc_request);
   in(ch_core_server_core_remote_server, trc: trust_root_configuration); (*Step 8*)
-  event verify_trust_root_configuration(trc);
+  event verify_trust_root_configuration(trc)
 (*)
   (*Adding personal entry and enlarging segments (how to add other segments? Since here I am only adding an as_Entry and not other segments for other servers)*)
   let skey = gen_private_key(keymat) in 
