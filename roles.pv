@@ -26,7 +26,7 @@ reduc forall as:AS, signature:bitstring, key:public_key; get_public_key(make_as_
 
 type as_entry_list. (* List of AS entries*)
 
-const empty_as_list: as_entry_list.
+const empty_as_list: as_entry_list [data].
 fun enlarge_as_list(as_entry_list, as_entry): as_entry_list.
 reduc forall l:as_entry_list, e:as_entry, e1:as_entry; pop(enlarge_as_list(enlarge_as_list(l, e),e1)) = enlarge_as_list(l, e).
 reduc forall l:as_entry_list, e:as_entry; get_head(enlarge_as_list(l, e)) = e.
@@ -254,7 +254,6 @@ let CoreServer(keymat: keymat) =
 
 let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
   new as: AS;
-  new as_list: as_entry_list;
   in(ch_core_server_core_remote_server, isd_as: ISD_AS);               (*Step 4*)
   event send_request(ch_AS_core_server, isd_as);
   out(ch_AS_core_server, isd_as);
@@ -267,7 +266,7 @@ let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
   let pkey = gen_public_key(keymat) in
   let signature = sign(as, skey) in
   let as_entry_new = make_as_entry(as, signature, pkey) in
-  let updated_list = enlarge_as_list(as_list, as_entry_new) in
+  let updated_list = enlarge_as_list(empty_as_list, as_entry_new) in
   
   event send_segments(ch_core_server_core_remote_server, updated_list);
   out(ch_core_server_core_remote_server, updated_list)
