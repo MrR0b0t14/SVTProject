@@ -86,7 +86,7 @@ event evviva2().
 query isd_as: ISD_AS; event(send_request(ch_source_local_server, isd_as)). (*Expected to be true*)
 query isd_as: ISD_AS; event(send_request(ch_local_server_core_server, isd_as)). (*Expected to be true*)
 query isd_as: ISD_AS; event(send_request(ch_core_server_core_remote_server, isd_as)). (*Expected to be true*)
-query isd_as: ISD_AS; event(send_request(ch_AS_core_server, isd_as)). (*Expected to be true*)
+query isd_as: ISD_AS; event(send_request(ch_remote_core_server_AS, isd_as)). (*Expected to be true*)
 query event(destination_received_request()). (*Expected to be true*)
 query pk: public_key; event(signature_done_by_AS(pk)). (*Expected to be true*)
 (*query pk: public_key; event(signature_verified(pk)).*)
