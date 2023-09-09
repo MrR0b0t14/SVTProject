@@ -215,12 +215,12 @@ let CoreServer(keymat: keymat) =
   event send_request(ch_core_server_core_remote_server, isd_as);
   out(ch_core_server_core_remote_server, isd_as);
   in(ch_core_server_core_remote_server, as_list: as_entry_list); (*Step 6*)
-  event core_server_receive_path(as_list)
-(*
+  event core_server_receive_path(as_list);
+
   out(ch_core_server_core_remote_server, made_trc_request);
   in(ch_core_server_core_remote_server, trc: trust_root_configuration); (*Step 8*)
-  event verify_trust_root_configuration(trc);
-
+  event verify_trust_root_configuration(trc)
+(*)
   (*Adding personal entry and enlarging segments (how to add other segments? Since here I am only adding an as_Entry and not other segments for other servers)*)
   let skey = gen_private_key(keymat) in 
   let pkey = gen_public_key(keymat) in
@@ -252,9 +252,9 @@ let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
   let updated_list = add_second(single_signature, as_entry_new) in
   
   event send_segments(ch_core_server_core_remote_server, updated_list);
-  out(ch_core_server_core_remote_server, updated_list)
-  (*in(ch_core_server_core_remote_server, trc_request: trust_root_configuration_request); (*Step 7*)
-  out(ch_core_server_core_remote_server, trc)*)
+  out(ch_core_server_core_remote_server, updated_list);
+  in(ch_core_server_core_remote_server, trc_request: trust_root_configuration_request); (*Step 7*)
+  out(ch_core_server_core_remote_server, trc)
   .
 
 process
