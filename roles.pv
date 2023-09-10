@@ -276,6 +276,7 @@ let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
   event send_request(ch_core_remote_AS, isd_as);
   out(ch_core_remote_AS, isd_as);
   in(ch_AS_core_server, single_signature: as_entry);   (*Step 5*)
+  event remote_core_server_receive_path(single_signature);
 (*  if checksign(get_signature(single_signature), get_public_key(single_signature)) then
     event signature_verified(get_public_key(single_signature))
 *)
