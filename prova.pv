@@ -2,7 +2,7 @@ type typeA.
 type typeB.
 free ch: channel [private].
 
-event frititatiGay(typeB).
+event frititatiGay(typeA).
 query v: typeB; event(frititatiGay(v)).
 
 let pA() = 
