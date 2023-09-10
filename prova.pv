@@ -2,14 +2,14 @@ type typeA.
 type typeB.
 free ch: channel [private].
 
-event reach(typeA).
-query v: typeA; event(reach(v)).
+event reach().
+query v: typeA; event(reach()).
 
 let pA() = 
 new vA: typeA;
   out(ch, vA);
   in(ch, variable: typeA);
-  event reach(variable)
+  event reach()
   .
 
 process
