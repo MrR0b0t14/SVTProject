@@ -2,14 +2,14 @@ type typeA.
 type typeB.
 free ch: channel [private].
 
-event frititatiGay(typeA).
-query v: typeA; event(frititatiGay(v)).
+event reach(typeA).
+query v: typeA; event(reach(v)).
 
 let pA() = 
 new vA: typeA;
   out(ch, vA);
   in(ch, variable: typeA);
-  event frititatiGay(variable)
+  event reach(variable)
   .
 
 process
