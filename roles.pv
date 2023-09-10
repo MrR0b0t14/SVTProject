@@ -142,10 +142,10 @@ query tr: trust_root_configuration; event(trc_verified_by_local(tr)) ==> event(t
 query tr: trust_root_configuration; event(trc_verified_by_eh(tr)) ==> event(trc_send_by_local(tr)) . (*Expected to be true*)
 
 (*Signature Verification*)
-query pk: public_key; event(dest_signature_verified(pk)) ==> event(signature_done_by_AS(pk)). (*Expected to be true*)
-query pk: public_key; event(remote_signature_verified(pk)) ==> event(signature_perfomed_by_core_remote_server(pk)). (*Expected to be true*)
-query pk: public_key; event(core_signature_verified(pk)) ==> event(signature_perfomed_by_core_server(pk)). (*Expected to be true*)
-query pk: public_key; event(local_signature_verified(pk)) ==> event(signature_perfomed_by_local(pk)). (*Expected to be true*)
+query k: keymat; event(dest_signature_verified(gen_public_key(k))) ==> event(signature_done_by_AS(gen_public_key(k))) || attacker(gen_private_key(k)). (*Expected to be true*)
+query k: keymat; event(remote_signature_verified(gen_public_key(k))) ==> event(signature_perfomed_by_core_remote_server(gen_public_key(k))) || attacker(gen_private_key(k)). (*Expected to be true*)
+query k: keymat; event(core_signature_verified(gen_public_key(k))) ==> event(signature_perfomed_by_core_server(gen_public_key(k))) || attacker(gen_private_key(k)). (*Expected to be true*)
+query k: keymat; event(local_signature_verified(gen_public_key(k))) ==> event(signature_perfomed_by_local(gen_public_key(k))) || attacker(gen_private_key(k)). (*Expected to be true*)
 
 (*EH sends a request to the Local Path Server*)
 (*Verified( pk(key)) -> Done(  pk(key)) || attacker( key) *)
