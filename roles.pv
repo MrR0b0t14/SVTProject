@@ -167,8 +167,9 @@ let AS_signature_finishing() =
   .
 
 let AS_signature_verification(signatures_to_verify: as_entry_list, trc_request: trust_root_configuration_request) =
-  event error();
+  
   let destination_entry = get_first(signatures_to_verify) in
+  event error();
   let destination_pkey = get_public_key(destination_entry) in
   let destination_signature = get_signature(destination_entry) in
 
