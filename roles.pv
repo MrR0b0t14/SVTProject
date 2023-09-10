@@ -147,7 +147,7 @@ query tr: trust_root_configuration; event(trc_verified_by_eh(tr)) ==> event(trc_
 query pk: public_key; event(dest_signature_verified(pk)) ==> event(signature_done_by_AS(pk)). (*Expected to be true*)
 query pk: public_key; event(remote_signature_verified(pk)) ==> event(signature_perfomed_by_core_remote_server(pk)). (*Expected to be true*)
 query pk: public_key; event(core_signature_verified(pk)) ==> event(signature_perfomed_by_core_server(pk)). (*Expected to be true*)
-query pk: public_key; event(local_signature_verified(pk)) ==> event(signature_perfomed_by_local_server(pk)). (*Expected to be true*)
+query pk: public_key; event(local_signature_verified(pk)) ==> event(signature_perfomed_by_local(pk)). (*Expected to be true*)
 
 (*EH sends a request to the Local Path Server*)
 (*Verified( pk(key)) -> Done(  pk(key)) || attacker( key) *)
