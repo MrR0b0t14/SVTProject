@@ -184,6 +184,7 @@ let AS_signature_verification(signatures_to_verify: as_entry_list, trc_request: 
   let local_pkey = get_public_key(local_entry) in
   let local_signature = get_signature(local_entry) in
 
+  event error();
   if checksign(destination_signature, destination_pkey) = ok() then
     (
       event dest_signature_verified(destination_pkey)
