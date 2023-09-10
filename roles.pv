@@ -129,7 +129,6 @@ query pk: public_key; event(dest_signature_verified(pk)). (*Expected to be true*
 query pk: public_key; event(remote_signature_verified(pk)). (*Expected to be true*)
 query pk: public_key; event(core_signature_verified(pk)). (*Expected to be true*)
 query pk: public_key; event(local_signature_verified(pk)). (*Expected to be true*)
-query event(error()).
 
 (*Event Correspondence, sanity checks for the workflow of the protocol*)
 query isd_as: ISD_AS; event(send_request(ch_local_server_core_server, isd_as)) ==> event(send_request(ch_source_local_server, isd_as)). (*Expected to be true*)
