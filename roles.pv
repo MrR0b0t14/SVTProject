@@ -184,16 +184,16 @@ let AS_signature_verification(signatures_to_verify: as_entry_list, trc_request: 
   let local_signature = get_signature(local_entry) in
 
   if checksign(destination_signature, destination_pkey) then
-    event dest_signature_verified();
+    event dest_signature_verified(destination_pkey);
   
   if checksign(remote_signature, remote_pkey) then
-    event remote_signature_verified();
+    event remote_signature_verified(remote_pkey);
 
   if checksign(core_signature, core_pkey) then
-    event core_signature_verified();
+    event core_signature_verified(core_pkey);
   
   if checksign(local_signature, local_pkey) then
-    event local_signature_verified();
+    event local_signature_verified(local_pkey);
 
   out(ch_trc_eh_to_local, trc_request);
   in(ch_trc_local_to_eh, trc: trust_root_configuration); 
