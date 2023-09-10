@@ -257,7 +257,7 @@ let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
   let e2 = get_second(updated_list) in
 
   if e1 = single_signature then
-    event evviva()
+    event evviva();
 
     (*
       IF I ADD THE OUT HERE, SINCE EVVIVA CANNOT BE PROVED, IT GOES WITH HORN CLAUSES THEN.
@@ -265,7 +265,7 @@ let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
       IT CAN BE SOLVED BY CREATING 2 CHANNELS FOR EACH MESSAGE EXCHANGE BETWEEN 2 PROCESSES.
     *)
 
-  (*out(ch_core_server_core_remote_server, updated_list)*)
+  out(ch_core_server_core_remote_server, updated_list)
   (*in(ch_core_server_core_remote_server, trc_request: trust_root_configuration_request); (*Step 7*)
   out(ch_core_server_core_remote_server, trc)*)
   .
