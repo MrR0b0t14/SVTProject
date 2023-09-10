@@ -96,7 +96,7 @@ event trc_send_by_local(trust_root_configuration).
 event trc_verified_by_eh(trust_root_configuration).
 event signature_perfomed_by_core_remote_server(public_key).
 event signature_perfomed_by_core_server(public_key).
-event signature_perfomed_by_local_server(public_key).
+event signature_perfomed_by_local(public_key).
 event dest_signature_verified(public_key).
 event remote_signature_verified(public_key).
 event core_signature_verified(public_key).
