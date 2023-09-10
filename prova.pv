@@ -9,8 +9,6 @@ let pA() =
 new vA: typeA;
   out(ch, vA);
   event reach();
-  in(ch, variable: typeA)
-  
   .
 
 process
