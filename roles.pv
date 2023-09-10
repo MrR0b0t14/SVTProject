@@ -27,16 +27,12 @@ reduc forall as:AS, signature:bitstring, key:public_key; get_public_key(make_as_
 type as_entry_list. (* List of AS entries*)
 
 fun add_second(as_entry, as_entry): as_entry_list.
-reduc forall e:as_entry, e1:as_entry; get_first(add_second(e, e1)) = e.
-reduc forall e:as_entry, e1:as_entry; get_second(add_second(e, e1)) = e1.
-
 fun add_third(as_entry_list, as_entry): as_entry_list.
-reduc forall l:as_entry_list, e:as_entry; add_third(l, e) = l.
-reduc forall l:as_entry_list, e:as_entry; get_third(add_third(l, e)) = e.
-
 fun add_fourth(as_entry_list, as_entry): as_entry_list.
-reduc forall l:as_entry_list, e:as_entry; add_fourth(l, e) = l.
-reduc forall l:as_entry_list, e:as_entry; get_fourth(add_fourth(l, e)) = e.
+reduc forall e:as_entry, e1:as_entry, e2:as_entry, e3:as_entry, e4:as_entry; get_first(add_fourth(add_third(add_second(e1, e2), e3), e4)) = e1.
+reduc forall e:as_entry, e1:as_entry, e2:as_entry, e3:as_entry, e4:as_entry; get_second(add_fourth(add_third(add_second(e1, e2), e3), e4)) = e2.
+reduc forall e:as_entry, e1:as_entry, e2:as_entry, e3:as_entry, e4:as_entry; get_third(add_fourth(add_third(add_second(e1, e2), e3), e4)) = e3.
+reduc forall e:as_entry, e1:as_entry, e2:as_entry, e3:as_entry, e4:as_entry; get_fourth(add_fourth(add_third(add_second(e1, e2), e3), e4)) = e4.
 
 (*Channels available*)
 (*From Left to Right Flow Request*)
