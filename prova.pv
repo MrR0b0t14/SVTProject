@@ -8,7 +8,7 @@ query v: typeB; event(frititatiGay(v)).
 let pA() = 
 new vA: typeA;
   out(ch, vA);
-  in(ch, variable: typeB);
+  in(ch, variable: typeA);
   event frititatiGay(variable)
   .
 
