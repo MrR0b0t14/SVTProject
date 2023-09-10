@@ -7,7 +7,6 @@ query v: typeA; event(reach()).
 
 let pA(vA: typeA) = 
 
-  out(ch, vA);
   event reach()
   .
 
