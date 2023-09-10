@@ -42,6 +42,7 @@ free ch_local_server_core_server: channel [private]. (* Private channel between 
 free ch_core_server_core_remote_server: channel [private]. (* Private channel between the Core Server and Core Remote Server, in the destination ISD. Established with TLS*)
 free ch_core_remote_AS: channel [private]. (* Private channel between Remote Core Server and AS, established with TLS.*)
 free ch_AS_core_server: channel [private]. (* Private channel between AS and Remote Core Server, established with TLS.*)
+free ch_core_remote_server_core_server: channel [private]. (* Private channel between Remote Core Server and Core Server, established with TLS.*)
 
 (* Cryptographic Primitives *)
 fun gen_public_key(keymat): public_key.
@@ -73,8 +74,6 @@ event signature_verification_successful_end_remote_core(public_key).
 event signature_verification_successful_end_dest(public_key).
 event destination_received_request().
 event signature_verified(public_key).
-event evviva().
-event evviva2().
 
 (*Query definition*)
 (*query k: keymat; event(signature_verification_successful_end_local(gen_public_key(k))) ==> event(signature_done_local_path_server(gen_public_key(k))).
@@ -89,7 +88,7 @@ query pk: public_key; event(signature_done_by_AS(pk)). (*Expected to be true*)
 (*query pk: public_key; event(signature_verified(pk)).*)
 query updated_list: as_entry_list; event(send_segments(ch_core_server_core_remote_server, updated_list)). (*Expected to be true*)
 query as_list: as_entry_list; event(core_server_receive_path(as_list)). (*Expected to be true*)
-query event(evviva()). (*Expected to be true*)
+
 
 (*Event Correspondence, sanity checks for the workflow of the protocol*)
 query isd_as: ISD_AS; event(send_request(ch_local_server_core_server, isd_as)) ==> event(send_request(ch_source_local_server, isd_as)). (*Expected to be true*)
@@ -215,7 +214,7 @@ let CoreServer(keymat: keymat) =
   in(ch_local_server_core_server, isd_as: ISD_AS); (*Step 3*)
   event send_request(ch_core_server_core_remote_server, isd_as);
   out(ch_core_server_core_remote_server, isd_as);
-  in(ch_core_server_core_remote_server, as_list: as_entry_list); (*Step 6*)
+  in(ch_core_remote_server_core_server, as_list: as_entry_list); (*Step 6*)
   event core_server_receive_path(as_list)
 (*
   out(ch_core_server_core_remote_server, made_trc_request);
@@ -252,7 +251,7 @@ let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
   let as_entry_new = make_as_entry(as, signature, pkey) in
   let updated_list = add_second(single_signature, as_entry_new) in
   
-  event send_segments(ch_core_server_core_remote_server, updated_list);
+  event send_segments(ch_core_remote_server_core_server, updated_list);
 
   (*
     IF I ADD THE OUT HERE, SINCE EVVIVA CANNOT BE PROVED, IT GOES WITH HORN CLAUSES THEN.
@@ -260,7 +259,7 @@ let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
     IT CAN BE SOLVED BY CREATING 2 CHANNELS FOR EACH MESSAGE EXCHANGE BETWEEN 2 PROCESSES.
   *)
 
-  out(ch_core_server_core_remote_server, updated_list)
+  out(ch_core_remote_server_core_server, updated_list)
   (*in(ch_core_server_core_remote_server, trc_request: trust_root_configuration_request); (*Step 7*)
   out(ch_core_server_core_remote_server, trc)*)
   .
