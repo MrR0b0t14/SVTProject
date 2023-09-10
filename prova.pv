@@ -5,11 +5,12 @@ free ch: channel [private].
 event reach().
 query v: typeA; event(reach()).
 
-let pA() = 
-new vA: typeA;
+let pA(vA: typeA) = 
+
   out(ch, vA);
   event reach()
   .
 
 process
-   pA()
+   new vA: typeA;
+   pA(vA)
