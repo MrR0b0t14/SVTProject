@@ -94,6 +94,13 @@ event trc_send_by_core_server(trust_root_configuration).
 event trc_verified_by_local(trust_root_configuration).
 event trc_send_by_local(trust_root_configuration).
 event trc_verified_by_eh(trust_root_configuration).
+event signature_perfomed_by_core_remote_server(public_key).
+event signature_perfomed_by_core_server(public_key).
+event signature_perfomed_by_local_server(public_key).
+event dest_signature_verified(public_key).
+event remote_signature_verified(public_key).
+event core_signature_verified(public_key).
+event local_signature_verified(public_key).
 
 (*Query definition*)
 (*query k: keymat; event(signature_verification_successful_end_local(gen_public_key(k))) ==> event(signature_done_local_path_server(gen_public_key(k))).
@@ -116,7 +123,14 @@ query trc: trust_root_configuration; event(trc_verified_by_eh(trc)).
 query as_list: as_entry_list; event(end_host_receive_paths(as_list)). (*Expected to be true*)
 query as_list: as_entry_list; event(local_server_receive_path(as_list)). (*Expected to be true*)
 query as_entry: as_entry; event(remote_core_server_receive_path(as_entry)). (*Expected to be true*)
-
+query pk: public_key; event(signature_done_by_AS(pk)). (*Expected to be true*)
+query pk: public_key; event(signature_perfomed_by_core_remote_server(pk)). (*Expected to be true*)
+query pk: public_key; event(signature_perfomed_by_core_server(pk)). (*Expected to be true*)
+query pk: public_key; event(signature_perfomed_by_local_server(pk)). (*Expected to be true*)
+query pk: public_key; event(dest_signature_verified(pk)). (*Expected to be true*)
+query pk: public_key; event(remote_signature_verified(pk)). (*Expected to be true*)
+query pk: public_key; event(core_signature_verified(pk)). (*Expected to be true*)
+query pk: public_key; event(local_signature_verified(pk)). (*Expected to be true*)
 
 (*Event Correspondence, sanity checks for the workflow of the protocol*)
 query isd_as: ISD_AS; event(send_request(ch_local_server_core_server, isd_as)) ==> event(send_request(ch_source_local_server, isd_as)). (*Expected to be true*)
@@ -129,6 +143,11 @@ query tr: trust_root_configuration; event(trc_verified_by_core_server(tr)) ==> e
 query tr: trust_root_configuration; event(trc_verified_by_local(tr)) ==> event(trc_send_by_core_server(tr)) . (*Expected to be true*)
 query tr: trust_root_configuration; event(trc_verified_by_eh(tr)) ==> event(trc_send_by_local(tr)) . (*Expected to be true*)
 
+(*Signature Verification*)
+query pk: public_key; event(dest_signature_verified(pk)) ==> event(signature_done_by_AS(pk)). (*Expected to be true*)
+query pk: public_key; event(remote_signature_verified(pk)) ==> event(signature_perfomed_by_core_remote_server(pk)). (*Expected to be true*)
+query pk: public_key; event(core_signature_verified(pk)) ==> event(signature_perfomed_by_core_server(pk)). (*Expected to be true*)
+query pk: public_key; event(local_signature_verified(pk)) ==> event(signature_perfomed_by_local_server(pk)). (*Expected to be true*)
 
 (*EH sends a request to the Local Path Server*)
 (*Verified( pk(key)) -> Done(  pk(key)) || attacker( key) *)
@@ -145,58 +164,41 @@ let AS_signature_finishing() =
     event signature_done_by_AS(pkey);
     out(ch_AS_core_server, single_signature) (*It sends to the Remote Core AS the segment signed by the single AS*)
   .
-(*
+
 let AS_signature_verification(signatures_to_verify: as_entry_list, trc_request: trust_root_configuration_request) =
-  let local_as = get_head(signatures_to_verify) in
-  let signatures_to_verify1 = pop(signatures_to_verify) in
-  let core_local_as = get_head(signatures_to_verify1) in
-  let signatures_to_verify2 = pop(signatures_to_verify1) in
-  let core_remote_as = get_head(signatures_to_verify2) in
-  let signatures_to_verify3 = pop(signatures_to_verify2) in
-  let AS_destination = get_head(signatures_to_verify3) in
-
-  (*Extraction from destination entry*)
-  let dest_as_identifier = get_as_from_entry(AS_destination) in
-  let dest_signature = get_signature(AS_destination) in
-  let dest_pkey = get_public_key(AS_destination) in
-
-  (*Extraction from core remote entry*)
-  let core_remote_as_identifier = get_as_from_entry(core_remote_as) in
-  let core_remote_signature = get_signature(core_remote_as) in
-  let core_remote_pkey = get_public_key(core_remote_as) in
-
-  (*Extraction from core local entry*)
-  let core_local_as_identifier = get_as_from_entry(core_local_as) in
-  let core_local_signature = get_signature(core_local_as) in
-  let core_local_pkey = get_public_key(core_local_as) in
-
-  (*Extraction from local entry*)
-  let local_as_identifier = get_as_from_entry(local_as) in
-  let local_signature = get_signature(local_as) in
-  let local_pkey = get_public_key(local_as) in
-
-  if checksign(local_signature, local_pkey) = ok() then
-    event signature_verification_successful_end_local(local_pkey)
-  else
-    event signature_verification_failed(local_as_identifier); (*What happens then? Is the upper recursive part correct*)
-
-  if checksign(core_local_signature, core_local_pkey) = ok() then
-    event signature_verification_successful_end_core(core_local_pkey)
-  else
-    event signature_verification_failed(core_local_as_identifier); (*What happens then? Is the upper recursive part correct*)
-
-  if checksign(core_remote_signature, core_remote_pkey) = ok() then
-    event signature_verification_successful_end_remote_core(core_remote_pkey)
-  else
-    event signature_verification_failed(core_remote_as_identifier); (*What happens then? Is the upper recursive part correct*)
   
-  if checksign(dest_signature, dest_pkey) = ok() then
-    event signature_verification_successful_end_dest(dest_pkey)
-  else
-    event signature_verification_failed(dest_as_identifier); (*What happens then? Is the upper recursive part correct*)
-    
+  let destination_entry = get_first(signatures_to_verify) in
+  let destination_pkey = get_public_key(destination_signature) in
+  let destination_signature = get_signature(destination_signature) in
+
+  let remote_entry = get_second(signatures_to_verify) in
+  let remote_pkey = get_public_key(remote_signature) in
+  let remote_signature = get_signature(remote_signature) in
+
+  let core_entry = get_third(signatures_to_verify) in
+  let core_pkey = get_public_key(core_signature) in
+  let core_signature = get_signature(core_signature) in
+
+  let local_entry = get_fourth(signatures_to_verify) in
+  let local_pkey = get_public_key(local_signature) in
+  let local_signature = get_signature(local_signature) in
+
+  if checksign(destination_signature, destination_pkey) then
+    event dest_signature_verified()
   
-  .*)
+  if checksign(remote_signature, remote_pkey) then
+    event remote_signature_verified()
+
+  if checksign(core_signature, core_pkey) then
+    event core_signature_verified()
+  
+  if checksign(local_signature, local_pkey) then
+    event local_signature_verified()
+
+  out(ch_trc_eh_to_local, trc_request);
+  in(ch_trc_local_to_eh, trc: trust_root_configuration); 
+  event trc_verified_by_eh(trc)
+  .
 
 let EndHost(keymat: keymat) =
   new isd: ISD; (*ISD*) 
@@ -206,11 +208,8 @@ let EndHost(keymat: keymat) =
   event send_request(ch_source_local_server, destination);
   out(ch_source_local_server, destination); (*Step 1*)
   in(ch_local_server_source, as_list: as_entry_list); (*Step 12*)
-  event end_host_receive_paths(as_list);(*
-  AS_signature_verification(as_list, trc_request) (*How to stop here and raise error if verification fails?*)*)
-  out(ch_trc_eh_to_local, trc_request);
-  in(ch_trc_local_to_eh, trc: trust_root_configuration); 
-  event trc_verified_by_eh(trc)
+  event end_host_receive_paths(as_list);
+  AS_signature_verification(as_list, trc_request)
   .
 
 let LocalPathServer(keymat: keymat) =
@@ -233,6 +232,7 @@ let LocalPathServer(keymat: keymat) =
   let updated_list = add_fourth(as_list, as_entry_new) in
 
   event send_segments(ch_source_local_server, updated_list);
+  event signature_perfomed_by_local(pkey);
   out(ch_local_server_source, updated_list);
   
 
@@ -263,6 +263,7 @@ let CoreServer(keymat: keymat) =
   let updated_list = add_third(as_list, as_entry_new) in
 
   event send_segments(ch_core_server_local_server, updated_list);
+  event signature_perfomed_by_core_server(pkey);
   out(ch_core_server_local_server, updated_list);
   
   in(ch_trc_local_to_core, trc_request: trust_root_configuration_request); (*Step 10*)
@@ -288,6 +289,7 @@ let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
   let updated_list = add_second(single_signature, as_entry_new) in
   
   event send_segments(ch_core_remote_server_core_server, updated_list);
+  event signature_perfomed_by_core_remote_server(pkey);
 
   (*
     IF I ADD THE OUT HERE, SINCE EVVIVA CANNOT BE PROVED, IT GOES WITH HORN CLAUSES THEN.
