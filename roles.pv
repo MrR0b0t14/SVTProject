@@ -31,9 +31,11 @@ reduc forall e:as_entry, e1:as_entry; get_first(add_second(e, e1)) = e.
 reduc forall e:as_entry, e1:as_entry; get_second(add_second(e, e1)) = e1.
 
 fun add_third(as_entry_list, as_entry): as_entry_list.
+reduc forall l:as_entry_list, e:as_entry; add_third(l, e) = l.
 reduc forall l:as_entry_list, e:as_entry; get_third(add_third(l, e)) = e.
 
 fun add_fourth(as_entry_list, as_entry): as_entry_list.
+reduc forall l:as_entry_list, e:as_entry; add_fourth(l, e) = l.
 reduc forall l:as_entry_list, e:as_entry; get_fourth(add_fourth(l, e)) = e.
 
 (*Channels available*)
@@ -168,11 +170,6 @@ let AS_signature_finishing() =
 
 let AS_signature_verification(signatures_to_verify: as_entry_list, trc_request: trust_root_configuration_request) =
   
-  let local_entry = get_fourth(signatures_to_verify) in
-  let local_pkey = get_public_key(local_entry) in
-  let local_signature = get_signature(local_entry) in
-  event error();
-  
   let destination_entry = get_first(signatures_to_verify) in
   let destination_pkey = get_public_key(destination_entry) in
   let destination_signature = get_signature(destination_entry) in
@@ -184,6 +181,10 @@ let AS_signature_verification(signatures_to_verify: as_entry_list, trc_request: 
   let core_entry = get_third(signatures_to_verify) in
   let core_pkey = get_public_key(core_entry) in
   let core_signature = get_signature(core_entry) in
+
+  let local_entry = get_fourth(signatures_to_verify) in
+  let local_pkey = get_public_key(local_entry) in
+  let local_signature = get_signature(local_entry) in
 
   event error();
   if checksign(destination_signature, destination_pkey) = ok() then
