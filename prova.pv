@@ -8,8 +8,9 @@ query v: typeA; event(reach()).
 let pA() = 
 new vA: typeA;
   out(ch, vA);
-  in(ch, variable: typeA);
   event reach()
+  in(ch, variable: typeA);
+  
   .
 
 process
