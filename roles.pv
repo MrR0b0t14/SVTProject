@@ -131,6 +131,7 @@ query pk: public_key; event(dest_signature_verified(pk)). (*Expected to be true*
 query pk: public_key; event(remote_signature_verified(pk)). (*Expected to be true*)
 query pk: public_key; event(core_signature_verified(pk)). (*Expected to be true*)
 query pk: public_key; event(local_signature_verified(pk)). (*Expected to be true*)
+query event(error()).
 
 (*Event Correspondence, sanity checks for the workflow of the protocol*)
 query isd_as: ISD_AS; event(send_request(ch_local_server_core_server, isd_as)) ==> event(send_request(ch_source_local_server, isd_as)). (*Expected to be true*)
@@ -185,7 +186,9 @@ let AS_signature_verification(signatures_to_verify: as_entry_list, trc_request: 
 
   if checksign(destination_signature, destination_pkey) = ok() then
     event dest_signature_verified(destination_pkey);
-  
+  else 
+    event error();
+
   if checksign(remote_signature, remote_pkey) = ok() then
     event remote_signature_verified(remote_pkey);
 
