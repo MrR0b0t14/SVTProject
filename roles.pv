@@ -122,11 +122,11 @@ query trc: trust_root_configuration; event(trc_send_by_local(trc)).
 query trc: trust_root_configuration; event(trc_verified_by_eh(trc)).
 query as_list: as_entry_list; event(end_host_receive_paths(as_list)). (*Expected to be true*)
 query as_list: as_entry_list; event(local_server_receive_path(as_list)). (*Expected to be true*)
-query as_entry: as_entry; event(remote_core_server_receive_path(as_entry)). (*Expected to be true*)
+query entry: as_entry; event(remote_core_server_receive_path(entry)). (*Expected to be true*)
 query pk: public_key; event(signature_done_by_AS(pk)). (*Expected to be true*)
 query pk: public_key; event(signature_perfomed_by_core_remote_server(pk)). (*Expected to be true*)
 query pk: public_key; event(signature_perfomed_by_core_server(pk)). (*Expected to be true*)
-query pk: public_key; event(signature_perfomed_by_local_server(pk)). (*Expected to be true*)
+query pk: public_key; event(signature_perfomed_by_local(pk)). (*Expected to be true*)
 query pk: public_key; event(dest_signature_verified(pk)). (*Expected to be true*)
 query pk: public_key; event(remote_signature_verified(pk)). (*Expected to be true*)
 query pk: public_key; event(core_signature_verified(pk)). (*Expected to be true*)
