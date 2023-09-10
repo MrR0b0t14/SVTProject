@@ -5,10 +5,12 @@ free ch: channel [private].
 event frititatiGay(typeB).
 query v: typeB; event(frititatiGay(v)).
 
-        
+let pA() = 
+new vA: typeA;
+  out(ch, vA);
+  in(ch, variable: typeB);
+  event frititatiGay(variable)
+  .
+
 process
-   (
-        out(ch, typeA);
-        in(ch, variable: typeB);
-        event frititatiGay(variable);
-   )
+   pA()
