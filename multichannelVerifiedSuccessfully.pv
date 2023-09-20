@@ -78,8 +78,8 @@ event core_server_receive_path(as_entry_list).
 event remote_core_server_receive_path(as_entry).
 event signature_verification_failed(AS).
 event send_segments(channel, as_entry_list).
-event signature_done_local_path_server(public_key).
-event signature_done_by_AS(public_key).
+event signature_done_local_path_server(private_key).
+event signature_done_by_AS(private_key).
 event signature_verification_successful_end_local(public_key).
 event signature_verification_successful_end_core(public_key).
 event signature_verification_successful_end_remote_core(public_key).
@@ -92,9 +92,9 @@ event trc_send_by_core_server(trust_root_configuration).
 event trc_verified_by_local(trust_root_configuration).
 event trc_send_by_local(trust_root_configuration).
 event trc_verified_by_eh(trust_root_configuration).
-event signature_perfomed_by_core_remote_server(public_key).
-event signature_perfomed_by_core_server(public_key).
-event signature_perfomed_by_local(public_key).
+event signature_perfomed_by_core_remote_server(private_key).
+event signature_perfomed_by_core_server(private_key).
+event signature_perfomed_by_local(private_key).
 event dest_signature_verified(public_key).
 event remote_signature_verified(public_key).
 event core_signature_verified(public_key).
@@ -109,7 +109,7 @@ query isd_as: ISD_AS; event(send_request(ch_local_server_core_server, isd_as)). 
 query isd_as: ISD_AS; event(send_request(ch_core_server_core_remote_server, isd_as)). (*Expected to be true*)
 query isd_as: ISD_AS; event(send_request(ch_core_remote_AS, isd_as)). (*Expected to be true*)
 query event(destination_received_request()). (*Expected to be true*)
-query pk: public_key; event(signature_done_by_AS(pk)). (*Expected to be true*)
+query pk: private_key; event(signature_done_by_AS(pk)). (*Expected to be true*)
 query updated_list: as_entry_list; event(send_segments(ch_core_remote_server_core_server, updated_list)). (*Expected to be true*)
 query as_list: as_entry_list; event(core_server_receive_path(as_list)). (*Expected to be true*)
 query trc: trust_root_configuration; event(trc_send_by_remote(trc)). (*Expected to be true*)
@@ -121,10 +121,10 @@ query trc: trust_root_configuration; event(trc_verified_by_eh(trc)).
 query as_list: as_entry_list; event(end_host_receive_paths(as_list)). (*Expected to be true*)
 query as_list: as_entry_list; event(local_server_receive_path(as_list)). (*Expected to be true*)
 query entry: as_entry; event(remote_core_server_receive_path(entry)). (*Expected to be true*)
-query pk: public_key; event(signature_done_by_AS(pk)). (*Expected to be true*)
-query pk: public_key; event(signature_perfomed_by_core_remote_server(pk)). (*Expected to be true*)
-query pk: public_key; event(signature_perfomed_by_core_server(pk)). (*Expected to be true*)
-query pk: public_key; event(signature_perfomed_by_local(pk)). (*Expected to be true*)
+query pk: private_key; event(signature_done_by_AS(pk)). (*Expected to be true*)
+query pk: private_key; event(signature_perfomed_by_core_remote_server(pk)). (*Expected to be true*)
+query pk: private_key; event(signature_perfomed_by_core_server(pk)). (*Expected to be true*)
+query pk: private_key; event(signature_perfomed_by_local(pk)). (*Expected to be true*)
 query pk: public_key; event(dest_signature_verified(pk)). (*Expected to be true*)
 query pk: public_key; event(remote_signature_verified(pk)). (*Expected to be true*)
 query pk: public_key; event(core_signature_verified(pk)). (*Expected to be true*)
@@ -142,10 +142,10 @@ query tr: trust_root_configuration; event(trc_verified_by_local(tr)) ==> event(t
 query tr: trust_root_configuration; event(trc_verified_by_eh(tr)) ==> event(trc_send_by_local(tr)) . (*Expected to be true*)
 
 (*Signature Verification*)
-query k: keymat; event(dest_signature_verified(gen_public_key(k))) ==> event(signature_done_by_AS(gen_public_key(k))) || attacker(gen_private_key(k)). (*Expected to be true*)
-query k: keymat; event(remote_signature_verified(gen_public_key(k))) ==> event(signature_perfomed_by_core_remote_server(gen_public_key(k))) || attacker(gen_private_key(k)). (*Expected to be true*)
-query k: keymat; event(core_signature_verified(gen_public_key(k))) ==> event(signature_perfomed_by_core_server(gen_public_key(k))) || attacker(gen_private_key(k)). (*Expected to be true*)
-query k: keymat; event(local_signature_verified(gen_public_key(k))) ==> event(signature_perfomed_by_local(gen_public_key(k))) || attacker(gen_private_key(k)). (*Expected to be true*)
+query k: keymat; event(dest_signature_verified(gen_public_key(k))) ==> event(signature_done_by_AS(gen_private_key(k))) || attacker(gen_private_key(k)). (*Expected to be true*)
+query k: keymat; event(remote_signature_verified(gen_public_key(k))) ==> event(signature_perfomed_by_core_remote_server(gen_private_key(k))) || attacker(gen_private_key(k)). (*Expected to be true*)
+query k: keymat; event(core_signature_verified(gen_public_key(k))) ==> event(signature_perfomed_by_core_server(gen_private_key(k))) || attacker(gen_private_key(k)). (*Expected to be true*)
+query k: keymat; event(local_signature_verified(gen_public_key(k))) ==> event(signature_perfomed_by_local(gen_private_key(k))) || attacker(gen_private_key(k)). (*Expected to be true*)
 
 (*EH sends a request to the Local Path Server*)
 (*Verified( pk(key)) -> Done(  pk(key)) || attacker( key) *)
@@ -159,7 +159,7 @@ let AS_signature_finishing() =
     let pkey = gen_public_key(k) in
     let signature = sign(as_identifier, skey) in
     let single_signature = make_as_entry(as_identifier, signature, pkey) in
-    event signature_done_by_AS(pkey);
+    event signature_done_by_AS(skey);
     out(ch_AS_core_server, single_signature) (*It sends to the Remote Core AS the segment signed by the single AS*)
   .
 
@@ -230,7 +230,7 @@ let LocalPathServer(keymat: keymat) =
   let updated_list = add_fourth(as_list, as_entry_new) in
 
   event send_segments(ch_source_local_server, updated_list);
-  event signature_perfomed_by_local(pkey);
+  event signature_perfomed_by_local(skey);
   out(ch_local_server_source, updated_list);
   
 
@@ -261,7 +261,7 @@ let CoreServer(keymat: keymat) =
   let updated_list = add_third(as_list, as_entry_new) in
 
   event send_segments(ch_core_server_local_server, updated_list);
-  event signature_perfomed_by_core_server(pkey);
+  event signature_perfomed_by_core_server(skey);
   out(ch_core_server_local_server, updated_list);
   
   in(ch_trc_local_to_core, trc_request: trust_root_configuration_request); (*Step 10*)
@@ -287,7 +287,7 @@ let CoreRemoteServer(keymat: keymat, trc: trust_root_configuration) =
   let updated_list = add_second(single_signature, as_entry_new) in
   
   event send_segments(ch_core_remote_server_core_server, updated_list);
-  event signature_perfomed_by_core_remote_server(pkey);
+  event signature_perfomed_by_core_remote_server(skey);
 
   (*
     IF I ADD THE OUT HERE, SINCE EVVIVA CANNOT BE PROVED, IT GOES WITH HORN CLAUSES THEN.
